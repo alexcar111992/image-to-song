@@ -449,7 +449,7 @@ Now analyze this image and generate a song that makes the user feel deeply seen.
             console.log('Calling Gemini API...');
 
             const response = await fetch(
-                `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${state.apiKey}`,
+                `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${state.apiKey}`,
                 {
                     method: 'POST',
                     headers: {
@@ -689,13 +689,14 @@ ${state.currentSong.lyrics}
         updateGenerateButton();
     });
 
-    // Load API key from session storage
-    const savedApiKey = sessionStorage.getItem('geminiApiKey');
-    if (savedApiKey) {
-        elements.apiKeyInput.value = savedApiKey;
-        state.apiKey = savedApiKey;
-        updateGenerateButton();
-    }
+    // Pre-configured API key
+    const DEFAULT_API_KEY = 'AIzaSyCQ47EJMhGaod6Nlw9zREA5xjRK5iBQ_6w';
+
+    // Load API key from session storage or use default
+    const savedApiKey = sessionStorage.getItem('geminiApiKey') || DEFAULT_API_KEY;
+    elements.apiKeyInput.value = savedApiKey;
+    state.apiKey = savedApiKey;
+    updateGenerateButton();
 
     // Save API key to session storage on change
     elements.apiKeyInput.addEventListener('change', function(e) {
