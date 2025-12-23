@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
             name: 'Groq',
             key: _g.join(''),
             endpoint: 'https://api.groq.com/openai/v1/chat/completions',
-            model: 'llama-3.2-90b-vision-preview',
+            model: 'llama-3.2-11b-vision-preview',
             enabled: true
         },
         together: {
@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
             name: 'OpenRouter',
             key: _o.join(''),
             endpoint: 'https://openrouter.ai/api/v1/chat/completions',
-            model: 'meta-llama/llama-3.2-11b-vision-instruct:free',
+            model: 'qwen/qwen-2-vl-7b-instruct:free',
             enabled: true
         }
     };
