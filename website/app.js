@@ -449,7 +449,7 @@ Now analyze this image and generate a song that makes the user feel deeply seen.
             console.log('Calling Gemini API...');
 
             const response = await fetch(
-                `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-vision:generateContent?key=${state.apiKey}`,
+                `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${state.apiKey}`,
                 {
                     method: 'POST',
                     headers: {
