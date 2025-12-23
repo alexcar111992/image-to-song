@@ -19,21 +19,21 @@ document.addEventListener('DOMContentLoaded', function() {
             name: 'Groq',
             key: _g.join(''),
             endpoint: 'https://api.groq.com/openai/v1/chat/completions',
-            model: 'llama-3.2-11b-vision-preview',
+            model: 'meta-llama/llama-4-scout-17b-16e-instruct',
             enabled: true
-        },
-        together: {
-            name: 'Together AI',
-            key: '',
-            endpoint: 'https://api.together.xyz/v1/chat/completions',
-            model: 'meta-llama/Llama-Vision-Free',
-            enabled: false
         },
         openrouter: {
             name: 'OpenRouter',
             key: _o.join(''),
             endpoint: 'https://openrouter.ai/api/v1/chat/completions',
-            model: 'qwen/qwen-2-vl-7b-instruct:free',
+            model: 'google/gemini-2.0-flash-exp:free',
+            enabled: true
+        },
+        openrouter2: {
+            name: 'OpenRouter Backup',
+            key: _o.join(''),
+            endpoint: 'https://openrouter.ai/api/v1/chat/completions',
+            model: 'meta-llama/llama-3.2-90b-vision-instruct:free',
             enabled: true
         }
     };
@@ -438,11 +438,57 @@ OUTPUT FORMAT - Return ONLY this JSON (no other text):
         return data.choices?.[0]?.message?.content;
     }
 
+    async function callOpenRouter2(imageBase64, mimeType) {
+        const config = API_PROVIDERS.openrouter2;
+        if (!config.enabled || !config.key || config.key.includes('xxxx')) {
+            throw new Error('OpenRouter Backup not configured');
+        }
+
+        console.log('Trying OpenRouter Backup...');
+
+        const response = await fetch(config.endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${config.key}`,
+                'HTTP-Referer': window.location.href,
+                'X-Title': 'Image to Song',
+            },
+            body: JSON.stringify({
+                model: config.model,
+                messages: [
+                    {
+                        role: 'user',
+                        content: [
+                            { type: 'text', text: MASTER_PROMPT },
+                            {
+                                type: 'image_url',
+                                image_url: {
+                                    url: `data:${mimeType};base64,${imageBase64}`
+                                }
+                            }
+                        ]
+                    }
+                ],
+                max_tokens: 2048,
+                temperature: 0.9,
+            }),
+        });
+
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.error?.message || `OpenRouter Backup Error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data.choices?.[0]?.message?.content;
+    }
+
     async function callAIWithFallback(imageBase64, mimeType) {
         const providers = [
             { name: 'Groq', fn: callGroq },
-            { name: 'Together', fn: callTogether },
             { name: 'OpenRouter', fn: callOpenRouter },
+            { name: 'OpenRouter Backup', fn: callOpenRouter2 },
         ];
 
         const errors = [];
