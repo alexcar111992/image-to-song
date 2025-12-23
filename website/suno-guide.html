@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suno AI Guide - How to Create Your First Song</title>
+    <meta name="description" content="Step-by-step guide to signing up for Suno AI and creating your first song from lyrics.">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="styles.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Space Mono', 'monospace'],
+                    },
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        },
+                        accent: {
+                            coral: '#FF6B6B',
+                            purple: '#A855F7',
+                            yellow: '#FBBF24',
+                            pink: '#EC4899',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white font-sans">
+    <!-- Header -->
+    <header class="py-6 px-4 sm:px-6 lg:px-8 border-b border-white/10">
+        <nav class="max-w-4xl mx-auto flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                <span class="text-2xl">🎵</span>
+                <span class="font-bold text-xl bg-gradient-to-r from-accent-coral to-accent-purple bg-clip-text text-transparent">
+                    Image to Song
+                </span>
+            </a>
+            <a href="index.html" class="text-sm text-gray-300 hover:text-white transition-colors">
+                ← Back to App
+            </a>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="px-4 sm:px-6 lg:px-8 py-12">
+        <div class="max-w-3xl mx-auto">
+            <!-- Hero -->
+            <div class="text-center mb-12">
+                <span class="text-5xl mb-4 block">🎵</span>
+                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-4">
+                    Complete Guide to
+                    <span class="bg-gradient-to-r from-accent-coral to-accent-purple bg-clip-text text-transparent">
+                        Suno AI
+                    </span>
+                </h1>
+                <p class="text-lg text-gray-300 max-w-xl mx-auto">
+                    Learn how to sign up for Suno AI and create your first song from the lyrics we generated for you.
+                </p>
+            </div>
+
+            <!-- What is Suno Section -->
+            <section class="mb-12 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 sm:p-8">
+                <h2 class="text-2xl font-bold mb-4 flex items-center gap-3">
+                    <span class="w-10 h-10 bg-gradient-to-br from-accent-coral to-accent-purple rounded-full flex items-center justify-center text-lg">?</span>
+                    What is Suno AI?
+                </h2>
+                <p class="text-gray-300 mb-4">
+                    Suno AI is a powerful music generation platform that creates complete songs - with vocals, instruments, and production - from text prompts and lyrics. It's the perfect companion to our Image to Song lyric generator!
+                </p>
+                <div class="grid sm:grid-cols-3 gap-4 mt-6">
+                    <div class="bg-black/20 rounded-xl p-4 text-center">
+                        <span class="text-2xl mb-2 block">🆓</span>
+                        <p class="font-medium">Free to Start</p>
+                        <p class="text-sm text-gray-400">Get free credits daily</p>
+                    </div>
+                    <div class="bg-black/20 rounded-xl p-4 text-center">
+                        <span class="text-2xl mb-2 block">⚡</span>
+                        <p class="font-medium">Fast Generation</p>
+                        <p class="text-sm text-gray-400">Songs ready in 30-60 seconds</p>
+                    </div>
+                    <div class="bg-black/20 rounded-xl p-4 text-center">
+                        <span class="text-2xl mb-2 block">🎤</span>
+                        <p class="font-medium">Full Songs</p>
+                        <p class="text-sm text-gray-400">Vocals + instruments included</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Part 1: Sign Up -->
+            <section class="mb-12">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-accent-coral to-accent-purple rounded-full flex items-center justify-center text-xl font-bold">1</div>
+                    <h2 class="text-2xl font-bold">Sign Up for Suno AI</h2>
+                </div>
+
+                <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 sm:p-8 space-y-6">
+                    <div class="step-card">
+                        <h3 class="font-semibold text-lg text-accent-coral mb-2">Step 1: Go to Suno.ai</h3>
+                        <p class="text-gray-300 mb-4">Open your web browser and navigate to the Suno AI website.</p>
+                        <a
+                            href="https://suno.ai"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="inline-block py-3 px-6 bg-gradient-to-r from-pink-500 to-purple-600 rounded-xl font-semibold text-white transition-all hover:scale-105"
+                        >
+                            Visit Suno.ai →
+                        </a>
+                    </div>
+
+                    <hr class="border-white/10">
+
+                    <div class="step-card">
+                        <h3 class="font-semibold text-lg text-accent-coral mb-2">Step 2: Click "Sign Up" or "Try for Free"</h3>
+                        <p class="text-gray-300">
+                            Look for the signup button on the homepage. It's usually in the top-right corner or as a prominent call-to-action button.
+                        </p>
+                    </div>
+
+                    <hr class="border-white/10">
+
+                    <div class="step-card">
+                        <h3 class="font-semibold text-lg text-accent-coral mb-2">Step 3: Choose Your Sign-In Method</h3>
+                        <p class="text-gray-300 mb-3">Suno offers multiple ways to create an account:</p>
+                        <ul class="space-y-2 text-gray-300">
+                            <li class="flex items-center gap-3">
+                                <span class="w-6 h-6 bg-white/10 rounded flex items-center justify-center text-sm">G</span>
+                                <span><strong>Google:</strong> Fastest option - one click to sign in</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <span class="w-6 h-6 bg-white/10 rounded flex items-center justify-center text-sm">D</span>
+                                <span><strong>Discord:</strong> Great if you already use Discord</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <span class="w-6 h-6 bg-white/10 rounded flex items-center justify-center text-sm">M</span>
+                                <span><strong>Microsoft:</strong> Use your Microsoft/Outlook account</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <hr class="border-white/10">
+
+                    <div class="step-card">
+                        <h3 class="font-semibold text-lg text-accent-coral mb-2">Step 4: Complete Authorization</h3>
+                        <p class="text-gray-300">
+                            Follow the prompts to authorize Suno to access your account. You may need to verify your email address.
+                        </p>
+                    </div>
+
+                    <hr class="border-white/10">
+
+                    <div class="step-card">
+                        <h3 class="font-semibold text-lg text-accent-coral mb-2">Step 5: You're In!</h3>
+                        <p class="text-gray-300">
+                            Once signed up, you'll have access to free credits that refresh daily. You can start creating songs immediately!
+                        </p>
+                        <div class="mt-4 p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
+                            <p class="text-green-400 font-medium">🎉 Congratulations! You now have a Suno AI account.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Part 2: Create Your First Song -->
+            <section class="mb-12">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-accent-purple to-accent-pink rounded-full flex items-center justify-center text-xl font-bold">2</div>
+                    <h2 class="text-2xl font-bold">Create Your First Song</h2>
+                </div>
+
+                <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 sm:p-8 space-y-6">
+                    <div class="step-card">
+                        <h3 class="font-semibold text-lg text-accent-purple mb-2">Step 1: Click "Create"</h3>
+                        <p class="text-gray-300">
+                            After logging in, find the "Create" button on Suno's main interface. It's usually prominently displayed at the top or center of the page.
+                        </p>
+                    </div>
+
+                    <hr class="border-white/10">
+
+                    <div class="step-card">
+                        <h3 class="font-semibold text-lg text-accent-purple mb-2">Step 2: Enable "Custom Mode"</h3>
+                        <p class="text-gray-300">
+                            Toggle the "Custom" option to enable pasting your own lyrics. This gives you full control over the words in your song.
+                        </p>
+                        <div class="mt-3 p-3 bg-accent-yellow/10 border border-accent-yellow/30 rounded-lg text-sm">
+                            <span class="text-accent-yellow">💡 Tip:</span> <span class="text-gray-300">Custom mode is essential for using lyrics from Image to Song!</span>
+                        </div>
+                    </div>
+
+                    <hr class="border-white/10">
+
+                    <div class="step-card">
+                        <h3 class="font-semibold text-lg text-accent-purple mb-2">Step 3: Paste Your Lyrics</h3>
+                        <p class="text-gray-300 mb-3">
+                            Copy the lyrics from Image to Song and paste them into the "Lyrics" field. Make sure to include all the section labels like [Verse 1], [Chorus], etc.
+                        </p>
+                        <div class="bg-black/30 rounded-lg p-4 font-mono text-sm text-gray-300">
+                            <p class="text-accent-purple font-bold">[Verse 1]</p>
+                            <p>Your coffee's cold on the windowsill</p>
+                            <p>The morning light falls through the blinds</p>
+                            <p class="mt-2 text-accent-purple font-bold">[Chorus]</p>
+                            <p>I'm counting hours in the dust...</p>
+                            <p class="text-gray-500">... and so on</p>
+                        </div>
+                    </div>
+
+                    <hr class="border-white/10">
+
+                    <div class="step-card">
+                        <h3 class="font-semibold text-lg text-accent-purple mb-2">Step 4: Add Style Description</h3>
+                        <p class="text-gray-300 mb-3">
+                            In the "Style of Music" field, paste the style tags that came with your lyrics. This tells Suno what genre and mood to use.
+                        </p>
+                        <div class="bg-black/30 rounded-lg p-4 font-mono text-sm text-gray-300">
+                            <span class="text-accent-coral">indie folk, acoustic guitar, fingerpicked, soft vocals, intimate, melancholic</span>
+                        </div>
+                        <div class="mt-3 p-3 bg-accent-yellow/10 border border-accent-yellow/30 rounded-lg text-sm">
+                            <span class="text-accent-yellow">💡 Pro Tip:</span> <span class="text-gray-300">Keep it to 3-5 descriptive terms for best results. You can also specify "male vocals" or "female vocals" if you have a preference!</span>
+                        </div>
+                    </div>
+
+                    <hr class="border-white/10">
+
+                    <div class="step-card">
+                        <h3 class="font-semibold text-lg text-accent-purple mb-2">Step 5: Add a Title (Optional)</h3>
+                        <p class="text-gray-300">
+                            Enter the song title if there's a field for it. This helps organize your songs in your Suno library.
+                        </p>
+                    </div>
+
+                    <hr class="border-white/10">
+
+                    <div class="step-card">
+                        <h3 class="font-semibold text-lg text-accent-purple mb-2">Step 6: Click "Create"</h3>
+                        <p class="text-gray-300 mb-4">
+                            Hit the Create button and wait for the magic! Suno typically generates two versions of your song in about 30-60 seconds.
+                        </p>
+                        <div class="flex items-center gap-4 text-gray-400">
+                            <div class="spinner border-2 border-gray-600 border-t-accent-purple w-5 h-5 rounded-full animate-spin"></div>
+                            <span>Usually takes 30-60 seconds...</span>
+                        </div>
+                    </div>
+
+                    <hr class="border-white/10">
+
+                    <div class="step-card">
+                        <h3 class="font-semibold text-lg text-accent-purple mb-2">Step 7: Listen & Choose Your Favorite</h3>
+                        <p class="text-gray-300">
+                            Suno creates two variations. Listen to both and pick the one you like best! You can download, share, or continue editing from there.
+                        </p>
+                        <div class="mt-4 p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
+                            <p class="text-green-400 font-medium">🎉 You just created your first AI song!</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Pro Tips Section -->
+            <section class="mb-12">
+                <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                    <span class="text-3xl">💡</span>
+                    Pro Tips for Better Songs
+                </h2>
+
+                <div class="grid gap-4">
+                    <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-5">
+                        <h3 class="font-semibold text-accent-yellow mb-2">Be Specific with Style</h3>
+                        <p class="text-gray-300 text-sm">Instead of just "rock", try "90s alternative rock, grunge, raw vocals, distorted guitar"</p>
+                    </div>
+
+                    <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-5">
+                        <h3 class="font-semibold text-accent-yellow mb-2">Specify Vocals</h3>
+                        <p class="text-gray-300 text-sm">Add "male vocals", "female vocals", "soft vocals", or "powerful vocals" to your style description</p>
+                    </div>
+
+                    <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-5">
+                        <h3 class="font-semibold text-accent-yellow mb-2">Include Tempo</h3>
+                        <p class="text-gray-300 text-sm">Add the BPM (beats per minute) from our lyrics for better matching: "indie folk, 75 BPM, slow and contemplative"</p>
+                    </div>
+
+                    <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-5">
+                        <h3 class="font-semibold text-accent-yellow mb-2">Iterate and Experiment</h3>
+                        <p class="text-gray-300 text-sm">Don't like the first result? Regenerate with slightly different style tags. Each generation is unique!</p>
+                    </div>
+
+                    <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-5">
+                        <h3 class="font-semibold text-accent-yellow mb-2">Use Section Tags</h3>
+                        <p class="text-gray-300 text-sm">Keep the [Verse], [Chorus], [Bridge] labels - Suno uses these to structure your song correctly</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- FAQ Section -->
+            <section class="mb-12">
+                <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                    <span class="text-3xl">❓</span>
+                    Frequently Asked Questions
+                </h2>
+
+                <div class="space-y-4">
+                    <details class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-5 group">
+                        <summary class="font-semibold cursor-pointer list-none flex items-center justify-between">
+                            Is Suno AI free?
+                            <span class="text-gray-500 group-open:rotate-180 transition-transform">▼</span>
+                        </summary>
+                        <p class="text-gray-300 mt-3">Yes! Suno offers free credits that refresh daily. You can generate several songs per day for free. They also offer paid plans for more credits and features.</p>
+                    </details>
+
+                    <details class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-5 group">
+                        <summary class="font-semibold cursor-pointer list-none flex items-center justify-between">
+                            Can I download my songs?
+                            <span class="text-gray-500 group-open:rotate-180 transition-transform">▼</span>
+                        </summary>
+                        <p class="text-gray-300 mt-3">Yes, Suno allows you to download your generated songs. You can save them as audio files and share them however you like.</p>
+                    </details>
+
+                    <details class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-5 group">
+                        <summary class="font-semibold cursor-pointer list-none flex items-center justify-between">
+                            Who owns the music I create?
+                            <span class="text-gray-500 group-open:rotate-180 transition-transform">▼</span>
+                        </summary>
+                        <p class="text-gray-300 mt-3">This depends on Suno's terms of service, which may vary by plan. Generally, free tier songs have some restrictions while paid plans offer more rights. Check Suno's current terms for details.</p>
+                    </details>
+
+                    <details class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-5 group">
+                        <summary class="font-semibold cursor-pointer list-none flex items-center justify-between">
+                            Why didn't my song turn out right?
+                            <span class="text-gray-500 group-open:rotate-180 transition-transform">▼</span>
+                        </summary>
+                        <p class="text-gray-300 mt-3">AI music generation is still evolving. Try adjusting your style tags, regenerating a few times, or simplifying your lyrics. Sometimes shorter lyrics work better!</p>
+                    </details>
+
+                    <details class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-5 group">
+                        <summary class="font-semibold cursor-pointer list-none flex items-center justify-between">
+                            Can I edit the song after it's generated?
+                            <span class="text-gray-500 group-open:rotate-180 transition-transform">▼</span>
+                        </summary>
+                        <p class="text-gray-300 mt-3">Suno offers some editing features like extending songs or regenerating sections. You can also use external audio editing software for more control.</p>
+                    </details>
+                </div>
+            </section>
+
+            <!-- CTA Section -->
+            <section class="text-center">
+                <div class="bg-gradient-to-br from-purple-900/50 to-slate-900/50 border border-purple-500/30 rounded-2xl p-8">
+                    <h2 class="text-2xl font-bold mb-4">Ready to Create?</h2>
+                    <p class="text-gray-300 mb-6">Head back to Image to Song and generate some lyrics for Suno!</p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <a
+                            href="index.html"
+                            class="py-3 px-8 bg-gradient-to-r from-accent-coral to-accent-purple rounded-xl font-semibold text-white transition-all hover:scale-105"
+                        >
+                            Create Song Lyrics →
+                        </a>
+                        <a
+                            href="https://suno.ai"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="py-3 px-8 bg-white/10 border border-white/20 rounded-xl font-semibold text-white transition-all hover:bg-white/20"
+                        >
+                            Open Suno AI ↗
+                        </a>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="px-4 sm:px-6 lg:px-8 py-8 mt-8 border-t border-white/10">
+        <div class="max-w-4xl mx-auto text-center text-sm text-gray-500">
+            <p class="mb-2">This guide is for informational purposes only.</p>
+            <p>We are not affiliated with Suno AI. Suno's terms of service apply to all generated audio.</p>
+        </div>
+    </footer>
+
+    <style>
+        details summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</body>
+</html>

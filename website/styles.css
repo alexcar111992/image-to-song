@@ -1,0 +1,377 @@
+/* ============================================
+   Image to Song - Custom Styles
+   ============================================ */
+
+/* Base Styles */
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================
+   Background Animation - Floating Music Notes
+   ============================================ */
+.music-notes {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.music-notes::before,
+.music-notes::after {
+    content: "♪ ♫ ♬ ♩ ♪ ♫ ♬ ♩ ♪ ♫";
+    position: absolute;
+    font-size: 24px;
+    color: rgba(168, 85, 247, 0.1);
+    white-space: nowrap;
+    animation: float 30s linear infinite;
+}
+
+.music-notes::before {
+    top: 20%;
+    left: -100%;
+    animation-delay: 0s;
+}
+
+.music-notes::after {
+    top: 60%;
+    left: -100%;
+    animation-delay: 15s;
+}
+
+@keyframes float {
+    0% {
+        transform: translateX(0) translateY(0);
+    }
+    100% {
+        transform: translateX(200vw) translateY(-50px);
+    }
+}
+
+/* ============================================
+   Drop Zone Styles
+   ============================================ */
+.drop-zone {
+    background: rgba(255, 255, 255, 0.02);
+    transition: all 0.3s ease;
+}
+
+.drop-zone:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: #A855F7;
+}
+
+.drop-zone.dragover {
+    background: rgba(168, 85, 247, 0.1);
+    border-color: #A855F7;
+    transform: scale(1.02);
+}
+
+.drop-zone.dragover::after {
+    content: "Drop it!";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #A855F7;
+    pointer-events: none;
+}
+
+/* ============================================
+   Progress Steps Animation
+   ============================================ */
+.step-indicator {
+    transition: all 0.3s ease;
+}
+
+.step-indicator.active {
+    background: linear-gradient(135deg, #FF6B6B, #A855F7);
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+.step-indicator.active .step-dot {
+    background: white;
+}
+
+.step-indicator.completed {
+    background: #22C55E;
+}
+
+.step-indicator.completed .step-dot {
+    display: none;
+}
+
+.step-indicator.completed::after {
+    content: "✓";
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 0 10px rgba(168, 85, 247, 0);
+    }
+}
+
+/* ============================================
+   Lyrics Display
+   ============================================ */
+#song-lyrics {
+    font-family: 'Space Mono', monospace;
+    line-height: 1.8;
+}
+
+#song-lyrics .section-label {
+    color: #A855F7;
+    font-weight: bold;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+/* ============================================
+   Button Animations
+   ============================================ */
+button {
+    position: relative;
+    overflow: hidden;
+}
+
+button::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.3s, height 0.3s;
+}
+
+button:active::after {
+    width: 200px;
+    height: 200px;
+}
+
+/* Copy button success state */
+.copy-success {
+    background: linear-gradient(135deg, #22C55E, #16A34A) !important;
+}
+
+/* ============================================
+   Loading Spinner
+   ============================================ */
+.spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    display: inline-block;
+    margin-right: 8px;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ============================================
+   Celebration Animation
+   ============================================ */
+@keyframes celebrate {
+    0%, 100% {
+        transform: scale(1) rotate(0deg);
+    }
+    25% {
+        transform: scale(1.1) rotate(-5deg);
+    }
+    75% {
+        transform: scale(1.1) rotate(5deg);
+    }
+}
+
+.celebrate {
+    animation: celebrate 0.5s ease-in-out;
+}
+
+/* ============================================
+   Shimmer Loading Effect
+   ============================================ */
+.shimmer {
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.05) 0%,
+        rgba(255, 255, 255, 0.1) 50%,
+        rgba(255, 255, 255, 0.05) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+/* ============================================
+   Responsive Adjustments
+   ============================================ */
+@media (max-width: 640px) {
+    .music-notes::before,
+    .music-notes::after {
+        font-size: 16px;
+    }
+
+    #song-lyrics {
+        font-size: 0.875rem;
+        line-height: 1.6;
+    }
+}
+
+/* ============================================
+   Focus States (Accessibility)
+   ============================================ */
+button:focus,
+a:focus,
+input:focus {
+    outline: 2px solid #A855F7;
+    outline-offset: 2px;
+}
+
+/* Remove outline on mouse click but keep for keyboard */
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible),
+input:focus:not(:focus-visible) {
+    outline: none;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+    outline: 2px solid #A855F7;
+    outline-offset: 2px;
+}
+
+/* ============================================
+   Scrollbar Styling
+   ============================================ */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(168, 85, 247, 0.5);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(168, 85, 247, 0.7);
+}
+
+/* ============================================
+   Selection Styling
+   ============================================ */
+::selection {
+    background: rgba(168, 85, 247, 0.4);
+    color: white;
+}
+
+/* ============================================
+   Error State
+   ============================================ */
+.error-shake {
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    20%, 60% {
+        transform: translateX(-5px);
+    }
+    40%, 80% {
+        transform: translateX(5px);
+    }
+}
+
+/* ============================================
+   Tooltip Styles
+   ============================================ */
+.tooltip {
+    position: relative;
+}
+
+.tooltip::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0.5rem 1rem;
+    background: #1e1e2e;
+    color: white;
+    font-size: 0.75rem;
+    border-radius: 0.5rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    margin-bottom: 0.5rem;
+}
+
+.tooltip:hover::before {
+    opacity: 1;
+}
+
+/* ============================================
+   Print Styles
+   ============================================ */
+@media print {
+    body {
+        background: white;
+        color: black;
+    }
+
+    .music-notes,
+    header,
+    footer,
+    #suno-section,
+    button {
+        display: none !important;
+    }
+
+    #song-lyrics {
+        color: black;
+        font-size: 12pt;
+    }
+}
