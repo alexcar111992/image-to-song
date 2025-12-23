@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image to Song - Turn Your Photos Into Music</title>
+    <meta name="description" content="Transform any image into unique song lyrics using AI. Upload a photo and get a custom song written just for it.">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="styles.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Space Mono', 'monospace'],
+                    },
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        },
+                        accent: {
+                            coral: '#FF6B6B',
+                            purple: '#A855F7',
+                            yellow: '#FBBF24',
+                            pink: '#EC4899',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white font-sans">
+    <!-- Background Animation -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div class="music-notes"></div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="relative z-10 min-h-screen">
+        <!-- Header -->
+        <header class="py-6 px-4 sm:px-6 lg:px-8">
+            <nav class="max-w-6xl mx-auto flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">🎵</span>
+                    <span class="font-bold text-xl bg-gradient-to-r from-accent-coral to-accent-purple bg-clip-text text-transparent">
+                        Image to Song
+                    </span>
+                </div>
+                <div class="flex items-center gap-4 sm:gap-6">
+                    <a href="suno-guide.html" class="text-sm text-gray-300 hover:text-white transition-colors">
+                        Suno Guide
+                    </a>
+                    <a href="#how-it-works" class="text-sm text-gray-300 hover:text-white transition-colors">
+                        How It Works
+                    </a>
+                </div>
+            </nav>
+        </header>
+
+        <!-- Main Content -->
+        <main class="px-4 sm:px-6 lg:px-8 pb-16">
+            <div class="max-w-4xl mx-auto">
+
+                <!-- Page 1: Upload Section -->
+                <section id="upload-section" class="py-12 sm:py-20">
+                    <!-- Hero -->
+                    <div class="text-center mb-12">
+                        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight">
+                            Turn Your Image Into a
+                            <span class="bg-gradient-to-r from-accent-coral via-accent-purple to-accent-pink bg-clip-text text-transparent">
+                                Song
+                            </span>
+                        </h1>
+                        <p class="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto">
+                            Upload a photo. Get unique, emotional song lyrics written just for it.
+                            Then bring it to life with Suno AI.
+                        </p>
+                    </div>
+
+                    <!-- Upload Area -->
+                    <div class="max-w-xl mx-auto">
+                        <div
+                            id="drop-zone"
+                            class="drop-zone relative border-2 border-dashed border-gray-500 rounded-2xl p-8 sm:p-12 text-center cursor-pointer transition-all duration-300 hover:border-accent-purple hover:bg-white/5"
+                        >
+                            <input
+                                type="file"
+                                id="file-input"
+                                accept="image/*"
+                                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                            >
+
+                            <div id="upload-prompt" class="space-y-4">
+                                <div class="w-16 h-16 mx-auto bg-gradient-to-br from-accent-coral to-accent-purple rounded-full flex items-center justify-center">
+                                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-lg font-medium text-white">Drop your image here</p>
+                                    <p class="text-gray-400 mt-1">or click to browse</p>
+                                </div>
+                                <p class="text-sm text-gray-500">Supports JPG, PNG, GIF, WebP (max 10MB)</p>
+                            </div>
+
+                            <!-- Image Preview -->
+                            <div id="image-preview" class="hidden">
+                                <img id="preview-img" src="" alt="Preview" class="max-h-64 mx-auto rounded-lg shadow-lg">
+                                <p id="file-name" class="mt-4 text-sm text-gray-400"></p>
+                            </div>
+                        </div>
+
+                        <!-- API Key Input -->
+                        <div class="mt-6">
+                            <label for="api-key" class="block text-sm font-medium text-gray-300 mb-2">
+                                Gemini API Key
+                                <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" class="text-accent-coral hover:underline ml-2">
+                                    (Get one free)
+                                </a>
+                            </label>
+                            <input
+                                type="password"
+                                id="api-key"
+                                placeholder="Enter your Gemini API key"
+                                class="w-full px-4 py-3 bg-white/10 border border-gray-600 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-accent-purple focus:border-transparent transition-all"
+                            >
+                            <p class="mt-2 text-xs text-gray-500">Your API key is never stored and only used for this session.</p>
+                        </div>
+
+                        <!-- Generate Button -->
+                        <button
+                            id="generate-btn"
+                            disabled
+                            class="mt-8 w-full py-4 px-6 bg-gradient-to-r from-accent-coral to-accent-purple rounded-xl font-semibold text-lg text-white shadow-lg shadow-accent-purple/25 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-xl hover:shadow-accent-purple/40 hover:scale-[1.02] active:scale-[0.98]"
+                        >
+                            Generate Song
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Page 2: Generating Section (Hidden by default) -->
+                <section id="generating-section" class="hidden py-12 sm:py-20">
+                    <div class="max-w-xl mx-auto text-center">
+                        <!-- Blurred Background Image -->
+                        <div class="relative mb-8">
+                            <img
+                                id="generating-bg"
+                                src=""
+                                alt=""
+                                class="w-full h-64 object-cover rounded-2xl blur-sm opacity-30"
+                            >
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent rounded-2xl"></div>
+                        </div>
+
+                        <!-- Progress Steps -->
+                        <div class="space-y-4 mb-8">
+                            <div id="step-1" class="flex items-center gap-3 text-left">
+                                <div class="step-indicator w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center">
+                                    <span class="step-dot w-2 h-2 bg-gray-500 rounded-full"></span>
+                                </div>
+                                <span class="text-gray-400">Reading your image...</span>
+                            </div>
+                            <div id="step-2" class="flex items-center gap-3 text-left">
+                                <div class="step-indicator w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center">
+                                    <span class="step-dot w-2 h-2 bg-gray-500 rounded-full"></span>
+                                </div>
+                                <span class="text-gray-400">Finding the feeling...</span>
+                            </div>
+                            <div id="step-3" class="flex items-center gap-3 text-left">
+                                <div class="step-indicator w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center">
+                                    <span class="step-dot w-2 h-2 bg-gray-500 rounded-full"></span>
+                                </div>
+                                <span class="text-gray-400">Writing your song...</span>
+                            </div>
+                            <div id="step-4" class="flex items-center gap-3 text-left">
+                                <div class="step-indicator w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center">
+                                    <span class="step-dot w-2 h-2 bg-gray-500 rounded-full"></span>
+                                </div>
+                                <span class="text-gray-400">Adding the magic...</span>
+                            </div>
+                        </div>
+
+                        <!-- Progress Bar -->
+                        <div class="w-full bg-gray-700 rounded-full h-2 mb-4 overflow-hidden">
+                            <div id="progress-bar" class="h-full bg-gradient-to-r from-accent-coral to-accent-purple rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <p class="text-sm text-gray-500">Usually takes 15-30 seconds</p>
+                    </div>
+                </section>
+
+                <!-- Page 3: Result Section (Hidden by default) -->
+                <section id="result-section" class="hidden py-12 sm:py-20">
+                    <div class="max-w-2xl mx-auto">
+                        <!-- Celebration Header -->
+                        <div class="text-center mb-8">
+                            <div class="inline-block animate-bounce mb-4">
+                                <span class="text-5xl">🎉</span>
+                            </div>
+                            <h2 class="text-3xl sm:text-4xl font-bold mb-2">Your Song Is Ready!</h2>
+                        </div>
+
+                        <!-- Song Info Bar -->
+                        <div id="song-info" class="flex flex-wrap items-center justify-center gap-4 mb-6 text-sm">
+                            <span id="song-genre" class="px-3 py-1 bg-accent-purple/20 text-accent-purple rounded-full"></span>
+                            <span id="song-tempo" class="px-3 py-1 bg-accent-coral/20 text-accent-coral rounded-full"></span>
+                            <span id="song-mood" class="px-3 py-1 bg-accent-yellow/20 text-accent-yellow rounded-full"></span>
+                        </div>
+
+                        <!-- Song Content -->
+                        <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 sm:p-8 mb-6">
+                            <h3 id="song-title" class="text-2xl font-bold text-center mb-6 text-accent-coral"></h3>
+                            <div id="song-lyrics" class="font-mono text-sm sm:text-base leading-relaxed whitespace-pre-wrap text-gray-200"></div>
+                            <div id="style-tags" class="mt-6 pt-4 border-t border-white/10 text-sm text-gray-400"></div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex flex-col sm:flex-row gap-4 mb-12">
+                            <button
+                                id="copy-btn"
+                                class="flex-1 py-3 px-6 bg-gradient-to-r from-accent-coral to-accent-purple rounded-xl font-semibold text-white shadow-lg transition-all hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]"
+                            >
+                                <span id="copy-text">Copy Song</span>
+                            </button>
+                            <button
+                                id="regenerate-btn"
+                                class="flex-1 py-3 px-6 bg-white/10 border border-white/20 rounded-xl font-semibold text-white transition-all hover:bg-white/20"
+                            >
+                                Generate Another
+                            </button>
+                            <button
+                                id="new-image-btn"
+                                class="flex-1 py-3 px-6 bg-white/10 border border-white/20 rounded-xl font-semibold text-white transition-all hover:bg-white/20"
+                            >
+                                New Image
+                            </button>
+                        </div>
+
+                        <!-- Suno Integration Section -->
+                        <div id="suno-section" class="bg-gradient-to-br from-purple-900/50 to-slate-900/50 border border-purple-500/30 rounded-2xl p-6 sm:p-8">
+                            <div class="text-center mb-6">
+                                <span class="text-3xl mb-2 block">🎵</span>
+                                <h3 class="text-2xl font-bold">Bring Your Song to Life!</h3>
+                                <p class="text-gray-400 mt-2">Use Suno AI to create actual music from your lyrics</p>
+                            </div>
+
+                            <!-- Quick Steps -->
+                            <div class="space-y-4 mb-8">
+                                <div class="flex items-start gap-4">
+                                    <div class="flex-shrink-0 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white font-bold">✓</div>
+                                    <div>
+                                        <p class="font-medium">Step 1: Copy your lyrics</p>
+                                        <p class="text-sm text-gray-400">Click the "Copy Song" button above</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-4">
+                                    <div class="flex-shrink-0 w-8 h-8 bg-accent-purple rounded-full flex items-center justify-center text-white font-bold">2</div>
+                                    <div>
+                                        <p class="font-medium">Step 2: Open Suno AI</p>
+                                        <p class="text-sm text-gray-400">Create a free account if you don't have one</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-4">
+                                    <div class="flex-shrink-0 w-8 h-8 bg-accent-purple rounded-full flex items-center justify-center text-white font-bold">3</div>
+                                    <div>
+                                        <p class="font-medium">Step 3: Paste & Generate!</p>
+                                        <p class="text-sm text-gray-400">Add your lyrics and style tags, then create</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Suno Button -->
+                            <a
+                                href="https://suno.ai"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="block w-full py-4 px-6 bg-gradient-to-r from-pink-500 to-purple-600 rounded-xl font-semibold text-lg text-white text-center shadow-lg transition-all hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]"
+                            >
+                                Open Suno AI →
+                            </a>
+
+                            <!-- Detailed Tutorial Toggle -->
+                            <button
+                                id="tutorial-toggle"
+                                class="mt-6 w-full text-center text-accent-purple hover:underline text-sm"
+                            >
+                                📖 Show detailed Suno tutorial
+                            </button>
+
+                            <!-- Detailed Tutorial (Hidden by default) -->
+                            <div id="tutorial-content" class="hidden mt-6 bg-black/20 rounded-xl p-6 text-left">
+                                <h4 class="font-bold text-lg mb-4">How to Use Suno AI (Step-by-Step)</h4>
+
+                                <div class="space-y-4 text-sm">
+                                    <div>
+                                        <p class="font-semibold text-accent-coral">1. GO TO SUNO</p>
+                                        <p class="text-gray-400">Visit suno.ai and create a free account if you don't have one. You get free credits to generate songs!</p>
+                                    </div>
+
+                                    <div>
+                                        <p class="font-semibold text-accent-coral">2. START A NEW SONG</p>
+                                        <p class="text-gray-400">Click the "Create" button on Suno's main page.</p>
+                                    </div>
+
+                                    <div>
+                                        <p class="font-semibold text-accent-coral">3. PASTE YOUR LYRICS</p>
+                                        <p class="text-gray-400">In the lyrics field, paste everything you copied from here. This includes the section labels like [Verse 1], [Chorus], etc.</p>
+                                    </div>
+
+                                    <div>
+                                        <p class="font-semibold text-accent-coral">4. ADD STYLE DESCRIPTION</p>
+                                        <p class="text-gray-400">In the style prompt, add the suggested tags that were included with your song (e.g., "indie folk, acoustic, melancholic").</p>
+                                    </div>
+
+                                    <div>
+                                        <p class="font-semibold text-accent-coral">5. GENERATE</p>
+                                        <p class="text-gray-400">Click "Create" and wait 30-60 seconds for Suno to generate your song.</p>
+                                    </div>
+
+                                    <div>
+                                        <p class="font-semibold text-accent-coral">6. LISTEN & ITERATE</p>
+                                        <p class="text-gray-400">Suno creates two versions. Listen to both! Not perfect? Try regenerating or adjust the style tags.</p>
+                                    </div>
+                                </div>
+
+                                <div class="mt-6 p-4 bg-accent-yellow/10 border border-accent-yellow/30 rounded-lg">
+                                    <p class="font-semibold text-accent-yellow mb-2">💡 Pro Tips:</p>
+                                    <ul class="text-sm text-gray-300 space-y-1 list-disc list-inside">
+                                        <li>Keep style descriptions concise (3-5 terms work best)</li>
+                                        <li>Specify male/female vocals if you have a preference</li>
+                                        <li>Include tempo if you want a specific feel</li>
+                                        <li>Suno is free to start - you get credits to generate songs!</li>
+                                    </ul>
+                                </div>
+
+                                <div class="mt-6 text-center">
+                                    <a href="suno-guide.html" class="text-accent-coral hover:underline text-sm">
+                                        📚 Read the complete Suno signup & tutorial guide →
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Disclaimer -->
+                        <p class="mt-6 text-xs text-gray-500 text-center">
+                            This app generates song lyrics only. Music generation happens on Suno.ai, a separate platform.
+                            We are not affiliated with Suno AI. You own your lyrics; Suno's terms of service apply to any generated audio.
+                        </p>
+                    </div>
+                </section>
+
+                <!-- Error Section (Hidden by default) -->
+                <section id="error-section" class="hidden py-12 sm:py-20">
+                    <div class="max-w-xl mx-auto text-center">
+                        <div class="mb-6">
+                            <span class="text-5xl">😕</span>
+                        </div>
+                        <h2 class="text-2xl font-bold mb-4">Something went wrong</h2>
+                        <p id="error-message" class="text-gray-400 mb-8"></p>
+                        <button
+                            id="retry-btn"
+                            class="py-3 px-8 bg-gradient-to-r from-accent-coral to-accent-purple rounded-xl font-semibold text-white transition-all hover:scale-[1.02]"
+                        >
+                            Try Again
+                        </button>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+
+        <!-- How It Works Section -->
+        <section id="how-it-works" class="px-4 sm:px-6 lg:px-8 py-16 bg-black/20">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-center mb-12">How It Works</h2>
+
+                <div class="grid sm:grid-cols-3 gap-8">
+                    <div class="text-center">
+                        <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-accent-coral to-accent-purple rounded-full flex items-center justify-center text-2xl">
+                            📸
+                        </div>
+                        <h3 class="font-semibold text-lg mb-2">1. Upload Image</h3>
+                        <p class="text-gray-400 text-sm">Drop any photo that inspires you. Landscapes, portraits, moments - anything works!</p>
+                    </div>
+
+                    <div class="text-center">
+                        <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-accent-purple to-accent-pink rounded-full flex items-center justify-center text-2xl">
+                            ✨
+                        </div>
+                        <h3 class="font-semibold text-lg mb-2">2. AI Creates Lyrics</h3>
+                        <p class="text-gray-400 text-sm">Our AI analyzes your image and writes unique, emotional song lyrics just for it.</p>
+                    </div>
+
+                    <div class="text-center">
+                        <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-accent-pink to-accent-yellow rounded-full flex items-center justify-center text-2xl">
+                            🎵
+                        </div>
+                        <h3 class="font-semibold text-lg mb-2">3. Make Music on Suno</h3>
+                        <p class="text-gray-400 text-sm">Copy your lyrics to Suno AI and turn them into a real song with vocals and instruments!</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="px-4 sm:px-6 lg:px-8 py-8 border-t border-white/10">
+            <div class="max-w-4xl mx-auto text-center text-sm text-gray-500">
+                <p class="mb-2">Built with AI by Bradly</p>
+                <p>Lyrics powered by Gemini AI | Music creation via <a href="https://suno.ai" target="_blank" rel="noopener" class="text-accent-purple hover:underline">Suno AI</a></p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="app.js"></script>
+</body>
+</html>
