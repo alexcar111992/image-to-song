@@ -1,11 +1,38 @@
 /**
  * Image to Song - Main Application
- * Transforms images into song lyrics using Gemini AI
+ * Transforms images into song lyrics using AI (Multi-provider with fallback)
  */
 
 // Wait for DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🎵 Image to Song initializing...');
+
+    // ============================================
+    // API Configuration - Multiple Providers
+    // ============================================
+    const API_PROVIDERS = {
+        groq: {
+            name: 'Groq',
+            key: 'gsk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', // Replace with your key
+            endpoint: 'https://api.groq.com/openai/v1/chat/completions',
+            model: 'llama-3.2-90b-vision-preview',
+            enabled: true
+        },
+        together: {
+            name: 'Together AI',
+            key: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', // Replace with your key
+            endpoint: 'https://api.together.xyz/v1/chat/completions',
+            model: 'meta-llama/Llama-Vision-Free',
+            enabled: true
+        },
+        openrouter: {
+            name: 'OpenRouter',
+            key: 'sk-or-v1-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', // Replace with your key
+            endpoint: 'https://openrouter.ai/api/v1/chat/completions',
+            model: 'meta-llama/llama-3.2-11b-vision-instruct:free',
+            enabled: true
+        }
+    };
 
     // ============================================
     // State Management
@@ -14,9 +41,9 @@ document.addEventListener('DOMContentLoaded', function() {
         currentImage: null,
         currentImageBase64: null,
         currentImageMimeType: null,
-        apiKey: '',
         isGenerating: false,
         currentSong: null,
+        lastUsedProvider: null,
     };
 
     // ============================================
@@ -36,7 +63,6 @@ document.addEventListener('DOMContentLoaded', function() {
         imagePreview: document.getElementById('image-preview'),
         previewImg: document.getElementById('preview-img'),
         fileName: document.getElementById('file-name'),
-        apiKeyInput: document.getElementById('api-key'),
         generateBtn: document.getElementById('generate-btn'),
 
         // Generating
@@ -69,7 +95,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     // Verify critical elements exist
-    if (!elements.fileInput || !elements.generateBtn || !elements.apiKeyInput) {
+    if (!elements.fileInput || !elements.generateBtn) {
         console.error('Critical elements not found!');
         return;
     }
@@ -77,132 +103,36 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('✓ All elements found');
 
     // ============================================
-    // Master Prompt for Gemini
+    // Master Prompt for AI
     // ============================================
-    const MASTER_PROMPT = `You are an elite songwriting AI that transforms uploaded images into unique, emotionally resonant songs. You combine visual analysis, creative writing mastery, and musical theory to ensure every song feels deeply personal to the specific image.
+    const MASTER_PROMPT = `You are an elite songwriting AI that transforms images into unique, emotionally resonant songs.
 
-YOUR CORE MISSION:
-Generate a complete, professional-quality song from this image that:
-- Feels emotionally authentic and human
-- Contains specific references to the ACTUAL image
-- Avoids ALL clichés and generic phrasing
-- Uses fresh metaphors derived from image content
-- Follows sophisticated song structure
-- Could be immediately used with Suno AI
-- Is unlike any other song you've generated
+ANALYZE THIS IMAGE AND CREATE A SONG:
 
-STAGE 1: IMAGE ANALYSIS
-Extract these elements:
-- All visible objects, subjects, settings (be specific)
-- Color palette (specific hues, not just "blue")
-- Lighting quality, direction, mood
-- Time indicators (day/night, season, era)
-- Emotional atmosphere and implied story
-- Abstract concepts present (loneliness, hope, decay, etc.)
+1. ANALYZE the image - identify objects, colors, mood, setting, emotions
+2. DETERMINE musical direction - genre, tempo (BPM), mood
+3. WRITE complete song lyrics with sections: [Verse 1], [Chorus], [Verse 2], [Chorus], [Bridge], [Chorus]
 
-STAGE 2: MUSICAL DIRECTION
-Determine:
-- Genre: Match scene to appropriate genre
-- Tempo: Calculate from energy/brightness/isolation (55-145 BPM)
-- Mood: Primary emotion + nuance
-- Instrumentation: What instruments fit this scene
+RULES:
+- Reference specific details FROM the image
+- NO clichés (no "heart on sleeve", "butterflies", "drowning in tears")
+- Use fresh, original metaphors
+- Make it singable with natural flow
 
-Genre Selection Guide:
-- Dark + isolated → Ambient, slowcore, lo-fi (60-80 BPM)
-- Bright + energetic → Indie pop, upbeat folk (100-130 BPM)
-- Muted + nostalgic → Indie folk, bedroom pop (75-95 BPM)
-- Urban + chaotic → Alternative rock, post-punk (110-140 BPM)
-- Dreamy + soft → Dream pop, art pop (85-110 BPM)
-
-STAGE 3: METAPHOR CONSTRUCTION
-1. Identify the most visually/emotionally charged element
-2. Map it to a conceptual domain (absence, time, connection, etc.)
-3. Extend this metaphor throughout the song
-
-NEVER Use These Banned Metaphors:
-- Heart as physical object (breaking, burning)
-- Stars/constellations for guidance
-- Ocean/drowning for overwhelming emotion
-- Fire/flames for passion
-- Wings for freedom
-- Chains for constraint
-
-STAGE 4: LYRIC GENERATION
-
-Opening Line MUST:
-1. Reference something specific from the image
-2. Create immediate intrigue or tension
-3. Establish tone instantly
-4. Be DIFFERENT from generic openings
-
-NEVER open with:
-- "I remember when..."
-- "Sometimes I think about..."
-- "It feels like..."
-- Any pronoun without context
-
-CLICHÉ BLACKLIST (Zero Tolerance):
-- heart on my sleeve
-- butterflies in my stomach
-- love at first sight / meant to be / soul mate
-- time stands still / turn back time
-- drowning in tears / took my breath away
-- on cloud nine / walking on air
-- ray of sunshine / silver lining
-- burning love / light up my life
-- broke my heart / stole my heart
-- lost in your eyes
-- my rock / my anchor / safe haven
-
-Every Song MUST Include:
-- 3-5 concrete details from the actual image
-- Extended metaphor derived from image
-- 2-3 unique sensory observations
-- At least ONE surprising/unexpected phrase
-- Zero repeated words within 2 lines (unless intentional)
-
-STAGE 5: SONG STRUCTURE
-Use structure based on content:
-- Standard narrative: V-C-V-C-B-C
-- Big emotional finish: V-C-V-C-B-C-C
-- Story-heavy: V-V-C-V-C
-- Contemplative: V-C-V-Outro
-
-Section Guidelines:
-- Verse (4-8 lines): Builds narrative, contains image-specific details
-- Chorus (4-6 lines): Distills core emotion, singable hook
-- Bridge (4-8 lines): Perspective shift, revelation, or contrast
-
-OUTPUT FORMAT:
-You MUST respond with ONLY a valid JSON object in this exact format (no markdown, no code blocks, just pure JSON):
-
+OUTPUT FORMAT - Return ONLY this JSON (no other text):
 {
-    "title": "THE SONG TITLE",
-    "genre": "indie folk",
-    "tempo": "75 BPM",
-    "mood": "melancholic nostalgia",
-    "lyrics": "[Verse 1]\\nLine 1\\nLine 2\\nLine 3\\nLine 4\\n\\n[Chorus]\\nLine 1\\nLine 2\\nLine 3\\nLine 4\\n\\n[Verse 2]\\nLine 1\\nLine 2\\nLine 3\\nLine 4\\n\\n[Chorus]\\nLine 1\\nLine 2\\nLine 3\\nLine 4\\n\\n[Bridge]\\nLine 1\\nLine 2\\nLine 3\\nLine 4\\n\\n[Chorus]\\nLine 1\\nLine 2\\nLine 3\\nLine 4",
-    "styleTags": "indie folk, acoustic guitar, fingerpicked, soft vocals, intimate, melancholic"
-}
-
-CRITICAL REMINDERS:
-1. This song must be about THIS image - not a generic scene
-2. Zero clichés - if it sounds familiar, rewrite it
-3. Metaphors from the image - not from templates
-4. Strong verbs, specific nouns - show, don't tell
-5. At least one surprise - subvert expectations
-6. Singable - read it aloud, check the flow
-7. Every section serves the whole - no filler
-
-Now analyze this image and generate a song that makes the user feel deeply seen.`;
+    "title": "SONG TITLE HERE",
+    "genre": "genre name",
+    "tempo": "XX BPM",
+    "mood": "mood description",
+    "lyrics": "[Verse 1]\\nLine 1\\nLine 2\\nLine 3\\nLine 4\\n\\n[Chorus]\\nLine 1\\nLine 2\\nLine 3\\nLine 4\\n\\n[Verse 2]\\nLine 1\\nLine 2\\nLine 3\\nLine 4\\n\\n[Chorus]\\nLine 1\\nLine 2\\nLine 3\\nLine 4\\n\\n[Bridge]\\nLine 1\\nLine 2\\n\\n[Chorus]\\nLine 1\\nLine 2\\nLine 3\\nLine 4",
+    "styleTags": "genre, instrument, mood, vocal style"
+}`;
 
     // ============================================
     // Utility Functions
     // ============================================
 
-    /**
-     * Convert file to base64
-     */
     function fileToBase64(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -215,27 +145,21 @@ Now analyze this image and generate a song that makes the user feel deeply seen.
         });
     }
 
-    /**
-     * Validate file type and size
-     */
     function validateFile(file) {
         const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-        const maxSize = 10 * 1024 * 1024; // 10MB
+        const maxSize = 10 * 1024 * 1024;
 
         if (!validTypes.includes(file.type)) {
-            return { valid: false, error: 'Oops! We need an image file (JPG, PNG, GIF, or WebP).' };
+            return { valid: false, error: 'Please upload an image file (JPG, PNG, GIF, or WebP).' };
         }
 
         if (file.size > maxSize) {
-            return { valid: false, error: 'That image is a bit too big. Try one under 10MB?' };
+            return { valid: false, error: 'Image is too large. Please use an image under 10MB.' };
         }
 
         return { valid: true };
     }
 
-    /**
-     * Show a specific section and hide others
-     */
     function showSection(sectionToShow) {
         const sections = [
             elements.uploadSection,
@@ -254,21 +178,11 @@ Now analyze this image and generate a song that makes the user feel deeply seen.
         }
     }
 
-    /**
-     * Update generate button state
-     */
     function updateGenerateButton() {
         const hasImage = state.currentImage !== null;
-        const hasApiKey = state.apiKey.trim().length > 0;
-
-        elements.generateBtn.disabled = !(hasImage && hasApiKey);
-
-        console.log('Button state:', { hasImage, hasApiKey, disabled: elements.generateBtn.disabled });
+        elements.generateBtn.disabled = !hasImage;
     }
 
-    /**
-     * Handle image file selection
-     */
     async function handleImageFile(file) {
         console.log('Processing file:', file.name, file.type);
 
@@ -283,7 +197,6 @@ Now analyze this image and generate a song that makes the user feel deeply seen.
             state.currentImageMimeType = file.type;
             state.currentImageBase64 = await fileToBase64(file);
 
-            // Show preview
             elements.previewImg.src = URL.createObjectURL(file);
             elements.fileName.textContent = file.name;
             elements.uploadPrompt.classList.add('hidden');
@@ -297,32 +210,21 @@ Now analyze this image and generate a song that makes the user feel deeply seen.
         }
     }
 
-    /**
-     * Reset progress steps
-     */
     function resetProgressSteps() {
         elements.steps.forEach(step => {
             if (!step) return;
             const indicator = step.querySelector('.step-indicator');
-            if (indicator) {
-                indicator.classList.remove('active', 'completed');
-            }
+            if (indicator) indicator.classList.remove('active', 'completed');
             const label = step.querySelector('span:last-child');
             if (label) {
                 label.classList.remove('text-white');
                 label.classList.add('text-gray-400');
             }
         });
-        if (elements.progressBar) {
-            elements.progressBar.style.width = '0%';
-        }
+        if (elements.progressBar) elements.progressBar.style.width = '0%';
     }
 
-    /**
-     * Activate a progress step
-     */
     function activateStep(stepIndex) {
-        // Complete previous steps
         for (let i = 0; i < stepIndex; i++) {
             const step = elements.steps[i];
             if (!step) continue;
@@ -333,13 +235,10 @@ Now analyze this image and generate a song that makes the user feel deeply seen.
             }
         }
 
-        // Activate current step
         if (stepIndex < elements.steps.length && elements.steps[stepIndex]) {
             const currentStep = elements.steps[stepIndex];
             const indicator = currentStep.querySelector('.step-indicator');
-            if (indicator) {
-                indicator.classList.add('active');
-            }
+            if (indicator) indicator.classList.add('active');
             const label = currentStep.querySelector('span:last-child');
             if (label) {
                 label.classList.remove('text-gray-400');
@@ -347,37 +246,25 @@ Now analyze this image and generate a song that makes the user feel deeply seen.
             }
         }
 
-        // Update progress bar
         const progress = ((stepIndex + 1) / elements.steps.length) * 100;
-        if (elements.progressBar) {
-            elements.progressBar.style.width = `${Math.min(progress, 100)}%`;
-        }
+        if (elements.progressBar) elements.progressBar.style.width = `${Math.min(progress, 100)}%`;
     }
 
-    /**
-     * Parse song response from Gemini
-     */
     function parseSongResponse(text) {
         try {
-            // Try to extract JSON from the response
             let jsonStr = text.trim();
 
-            // Remove markdown code blocks if present
-            if (jsonStr.startsWith('```json')) {
-                jsonStr = jsonStr.slice(7);
-            }
-            if (jsonStr.startsWith('```')) {
-                jsonStr = jsonStr.slice(3);
-            }
-            if (jsonStr.endsWith('```')) {
-                jsonStr = jsonStr.slice(0, -3);
+            // Extract JSON from response
+            const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
+            if (jsonMatch) {
+                jsonStr = jsonMatch[0];
             }
 
-            jsonStr = jsonStr.trim();
+            // Remove markdown code blocks
+            jsonStr = jsonStr.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
 
             const parsed = JSON.parse(jsonStr);
 
-            // Validate required fields
             if (!parsed.title || !parsed.lyrics) {
                 throw new Error('Missing required fields');
             }
@@ -391,36 +278,193 @@ Now analyze this image and generate a song that makes the user feel deeply seen.
                 styleTags: parsed.styleTags || parsed.genre,
             };
         } catch (e) {
-            console.error('Failed to parse JSON response:', e);
+            console.error('Failed to parse response:', e);
 
-            // Fallback: try to extract information from text
+            // Fallback parsing
             let title = 'Untitled Song';
-            let lyrics = text;
-
-            // Try to find a title pattern
-            const titleMatch = text.match(/\[([^\]]+)\]/);
-            if (titleMatch) {
-                title = titleMatch[1];
-            }
+            const titleMatch = text.match(/["']?title["']?\s*:\s*["']([^"']+)["']/i);
+            if (titleMatch) title = titleMatch[1];
 
             return {
                 title: title,
                 genre: 'indie',
                 tempo: '90 BPM',
                 mood: 'emotional',
-                lyrics: lyrics,
+                lyrics: text,
                 styleTags: 'indie, emotional, atmospheric',
             };
         }
     }
 
     // ============================================
-    // API Functions
+    // API Call Functions
     // ============================================
 
-    /**
-     * Generate song using Gemini API
-     */
+    async function callGroq(imageBase64, mimeType) {
+        const config = API_PROVIDERS.groq;
+        if (!config.enabled || !config.key || config.key.includes('xxxx')) {
+            throw new Error('Groq API not configured');
+        }
+
+        console.log('Trying Groq API...');
+
+        const response = await fetch(config.endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${config.key}`,
+            },
+            body: JSON.stringify({
+                model: config.model,
+                messages: [
+                    {
+                        role: 'user',
+                        content: [
+                            { type: 'text', text: MASTER_PROMPT },
+                            {
+                                type: 'image_url',
+                                image_url: {
+                                    url: `data:${mimeType};base64,${imageBase64}`
+                                }
+                            }
+                        ]
+                    }
+                ],
+                max_tokens: 2048,
+                temperature: 0.9,
+            }),
+        });
+
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.error?.message || `Groq API Error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data.choices?.[0]?.message?.content;
+    }
+
+    async function callTogether(imageBase64, mimeType) {
+        const config = API_PROVIDERS.together;
+        if (!config.enabled || !config.key || config.key.includes('xxxx')) {
+            throw new Error('Together API not configured');
+        }
+
+        console.log('Trying Together AI...');
+
+        const response = await fetch(config.endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${config.key}`,
+            },
+            body: JSON.stringify({
+                model: config.model,
+                messages: [
+                    {
+                        role: 'user',
+                        content: [
+                            { type: 'text', text: MASTER_PROMPT },
+                            {
+                                type: 'image_url',
+                                image_url: {
+                                    url: `data:${mimeType};base64,${imageBase64}`
+                                }
+                            }
+                        ]
+                    }
+                ],
+                max_tokens: 2048,
+                temperature: 0.9,
+            }),
+        });
+
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.error?.message || `Together API Error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data.choices?.[0]?.message?.content;
+    }
+
+    async function callOpenRouter(imageBase64, mimeType) {
+        const config = API_PROVIDERS.openrouter;
+        if (!config.enabled || !config.key || config.key.includes('xxxx')) {
+            throw new Error('OpenRouter API not configured');
+        }
+
+        console.log('Trying OpenRouter...');
+
+        const response = await fetch(config.endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${config.key}`,
+                'HTTP-Referer': window.location.href,
+                'X-Title': 'Image to Song',
+            },
+            body: JSON.stringify({
+                model: config.model,
+                messages: [
+                    {
+                        role: 'user',
+                        content: [
+                            { type: 'text', text: MASTER_PROMPT },
+                            {
+                                type: 'image_url',
+                                image_url: {
+                                    url: `data:${mimeType};base64,${imageBase64}`
+                                }
+                            }
+                        ]
+                    }
+                ],
+                max_tokens: 2048,
+                temperature: 0.9,
+            }),
+        });
+
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.error?.message || `OpenRouter API Error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data.choices?.[0]?.message?.content;
+    }
+
+    async function callAIWithFallback(imageBase64, mimeType) {
+        const providers = [
+            { name: 'Groq', fn: callGroq },
+            { name: 'Together', fn: callTogether },
+            { name: 'OpenRouter', fn: callOpenRouter },
+        ];
+
+        const errors = [];
+
+        for (const provider of providers) {
+            try {
+                console.log(`Attempting ${provider.name}...`);
+                const result = await provider.fn(imageBase64, mimeType);
+                if (result) {
+                    state.lastUsedProvider = provider.name;
+                    console.log(`✓ Success with ${provider.name}`);
+                    return result;
+                }
+            } catch (error) {
+                console.warn(`${provider.name} failed:`, error.message);
+                errors.push(`${provider.name}: ${error.message}`);
+            }
+        }
+
+        throw new Error(`All AI providers failed:\n${errors.join('\n')}`);
+    }
+
+    // ============================================
+    // Main Generate Function
+    // ============================================
+
     async function generateSong() {
         if (state.isGenerating) return;
 
@@ -428,7 +472,6 @@ Now analyze this image and generate a song that makes the user feel deeply seen.
         state.isGenerating = true;
 
         try {
-            // Show generating section
             showSection(elements.generatingSection);
             if (elements.generatingBg && elements.previewImg) {
                 elements.generatingBg.src = elements.previewImg.src;
@@ -437,60 +480,19 @@ Now analyze this image and generate a song that makes the user feel deeply seen.
 
             // Step 1: Reading image
             activateStep(0);
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await new Promise(resolve => setTimeout(resolve, 800));
 
             // Step 2: Finding feeling
             activateStep(1);
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await new Promise(resolve => setTimeout(resolve, 800));
 
-            // Step 3: Writing song (main API call)
+            // Step 3: Writing song (API call with fallback)
             activateStep(2);
 
-            console.log('Calling Gemini API...');
-
-            const response = await fetch(
-                `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${state.apiKey}`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        contents: [
-                            {
-                                parts: [
-                                    {
-                                        text: MASTER_PROMPT,
-                                    },
-                                    {
-                                        inline_data: {
-                                            mime_type: state.currentImageMimeType,
-                                            data: state.currentImageBase64,
-                                        },
-                                    },
-                                ],
-                            },
-                        ],
-                        generationConfig: {
-                            temperature: 0.9,
-                            topK: 40,
-                            topP: 0.95,
-                            maxOutputTokens: 2048,
-                        },
-                    }),
-                }
+            const generatedText = await callAIWithFallback(
+                state.currentImageBase64,
+                state.currentImageMimeType
             );
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.error?.message || `API Error: ${response.status}`);
-            }
-
-            const data = await response.json();
-            console.log('API response received');
-
-            // Extract the generated text
-            const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
             if (!generatedText) {
                 throw new Error('No response generated. Please try again.');
@@ -498,20 +500,15 @@ Now analyze this image and generate a song that makes the user feel deeply seen.
 
             // Step 4: Adding magic
             activateStep(3);
-            await new Promise(resolve => setTimeout(resolve, 800));
+            await new Promise(resolve => setTimeout(resolve, 600));
 
-            // Parse the response
             state.currentSong = parseSongResponse(generatedText);
 
-            // Complete all steps
             activateStep(4);
-            if (elements.progressBar) {
-                elements.progressBar.style.width = '100%';
-            }
+            if (elements.progressBar) elements.progressBar.style.width = '100%';
 
-            await new Promise(resolve => setTimeout(resolve, 500));
+            await new Promise(resolve => setTimeout(resolve, 400));
 
-            // Display results
             displaySong(state.currentSong);
 
         } catch (error) {
@@ -522,16 +519,12 @@ Now analyze this image and generate a song that makes the user feel deeply seen.
         }
     }
 
-    /**
-     * Display the generated song
-     */
     function displaySong(song) {
         if (elements.songTitle) elements.songTitle.textContent = song.title;
         if (elements.songGenre) elements.songGenre.textContent = song.genre;
         if (elements.songTempo) elements.songTempo.textContent = song.tempo;
         if (elements.songMood) elements.songMood.textContent = song.mood;
 
-        // Format lyrics with highlighted section labels
         if (elements.songLyrics) {
             const formattedLyrics = song.lyrics
                 .replace(/\[([^\]]+)\]/g, '<span class="text-accent-purple font-bold">[$1]</span>');
@@ -542,35 +535,23 @@ Now analyze this image and generate a song that makes the user feel deeply seen.
             elements.styleTags.innerHTML = `<span class="text-accent-coral">🎵 Style tags for Suno:</span> ${song.styleTags}`;
         }
 
-        // Reset copy button
         if (elements.copyText) elements.copyText.textContent = 'Copy Song';
         if (elements.copyBtn) elements.copyBtn.classList.remove('copy-success');
 
         showSection(elements.resultSection);
 
-        // Celebration animation
         const bounceEl = elements.resultSection?.querySelector('.animate-bounce');
         if (bounceEl) {
             bounceEl.classList.add('celebrate');
-            setTimeout(() => {
-                bounceEl.classList.remove('celebrate');
-            }, 500);
+            setTimeout(() => bounceEl.classList.remove('celebrate'), 500);
         }
     }
 
-    /**
-     * Show error message
-     */
     function showError(message) {
-        if (elements.errorMessage) {
-            elements.errorMessage.textContent = message;
-        }
+        if (elements.errorMessage) elements.errorMessage.textContent = message;
         showSection(elements.errorSection);
     }
 
-    /**
-     * Copy song to clipboard
-     */
     async function copySong() {
         if (!state.currentSong) return;
 
@@ -583,29 +564,24 @@ ${state.currentSong.lyrics}
 
         try {
             await navigator.clipboard.writeText(copyContent);
-
-            // Success feedback
             if (elements.copyText) elements.copyText.textContent = 'Copied! ✓';
             if (elements.copyBtn) elements.copyBtn.classList.add('copy-success');
-
             setTimeout(() => {
                 if (elements.copyText) elements.copyText.textContent = 'Copy Song';
                 if (elements.copyBtn) elements.copyBtn.classList.remove('copy-success');
             }, 2000);
         } catch (err) {
-            // Fallback for older browsers
+            // Fallback
             const textArea = document.createElement('textarea');
             textArea.value = copyContent;
             textArea.style.position = 'fixed';
             textArea.style.left = '-9999px';
             document.body.appendChild(textArea);
             textArea.select();
-
             try {
                 document.execCommand('copy');
                 if (elements.copyText) elements.copyText.textContent = 'Copied! ✓';
                 if (elements.copyBtn) elements.copyBtn.classList.add('copy-success');
-
                 setTimeout(() => {
                     if (elements.copyText) elements.copyText.textContent = 'Copy Song';
                     if (elements.copyBtn) elements.copyBtn.classList.remove('copy-success');
@@ -613,14 +589,10 @@ ${state.currentSong.lyrics}
             } catch (e) {
                 console.error('Copy failed:', e);
             }
-
             document.body.removeChild(textArea);
         }
     }
 
-    /**
-     * Reset to upload state
-     */
     function resetToUpload() {
         state.currentImage = null;
         state.currentImageBase64 = null;
@@ -641,24 +613,17 @@ ${state.currentSong.lyrics}
     // Event Listeners
     // ============================================
 
-    // File input change
     elements.fileInput.addEventListener('change', function(e) {
-        console.log('File input changed');
         const file = e.target.files[0];
-        if (file) {
-            handleImageFile(file);
-        }
+        if (file) handleImageFile(file);
     });
 
-    // Click on drop zone to trigger file input
     elements.dropZone.addEventListener('click', function(e) {
-        // Don't trigger if clicking on the file input itself
         if (e.target !== elements.fileInput) {
             elements.fileInput.click();
         }
     });
 
-    // Drag and drop
     elements.dropZone.addEventListener('dragover', function(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -675,56 +640,16 @@ ${state.currentSong.lyrics}
         e.preventDefault();
         e.stopPropagation();
         elements.dropZone.classList.remove('dragover');
-
-        console.log('File dropped');
         const file = e.dataTransfer.files[0];
-        if (file) {
-            handleImageFile(file);
-        }
+        if (file) handleImageFile(file);
     });
 
-    // API key input
-    elements.apiKeyInput.addEventListener('input', function(e) {
-        state.apiKey = e.target.value;
-        updateGenerateButton();
-    });
+    elements.generateBtn.addEventListener('click', generateSong);
 
-    // Pre-configured API key
-    const DEFAULT_API_KEY = 'AIzaSyCQ47EJMhGaod6Nlw9zREA5xjRK5iBQ_6w';
+    if (elements.copyBtn) elements.copyBtn.addEventListener('click', copySong);
+    if (elements.regenerateBtn) elements.regenerateBtn.addEventListener('click', generateSong);
+    if (elements.newImageBtn) elements.newImageBtn.addEventListener('click', resetToUpload);
 
-    // Load API key from session storage or use default
-    const savedApiKey = sessionStorage.getItem('geminiApiKey') || DEFAULT_API_KEY;
-    elements.apiKeyInput.value = savedApiKey;
-    state.apiKey = savedApiKey;
-    updateGenerateButton();
-
-    // Save API key to session storage on change
-    elements.apiKeyInput.addEventListener('change', function(e) {
-        sessionStorage.setItem('geminiApiKey', e.target.value);
-    });
-
-    // Generate button
-    elements.generateBtn.addEventListener('click', function() {
-        console.log('Generate button clicked');
-        generateSong();
-    });
-
-    // Copy button
-    if (elements.copyBtn) {
-        elements.copyBtn.addEventListener('click', copySong);
-    }
-
-    // Regenerate button
-    if (elements.regenerateBtn) {
-        elements.regenerateBtn.addEventListener('click', generateSong);
-    }
-
-    // New image button
-    if (elements.newImageBtn) {
-        elements.newImageBtn.addEventListener('click', resetToUpload);
-    }
-
-    // Retry button
     if (elements.retryBtn) {
         elements.retryBtn.addEventListener('click', function() {
             if (state.currentImage) {
@@ -735,7 +660,6 @@ ${state.currentSong.lyrics}
         });
     }
 
-    // Tutorial toggle
     if (elements.tutorialToggle && elements.tutorialContent) {
         elements.tutorialToggle.addEventListener('click', function() {
             const isHidden = elements.tutorialContent.classList.contains('hidden');
@@ -746,24 +670,13 @@ ${state.currentSong.lyrics}
         });
     }
 
-    // Keyboard shortcuts
     document.addEventListener('keydown', function(e) {
-        // Ctrl/Cmd + Enter to generate
         if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
             if (!elements.generateBtn.disabled && !state.isGenerating) {
                 generateSong();
             }
         }
-
-        // Ctrl/Cmd + C to copy (when on result page)
-        if ((e.ctrlKey || e.metaKey) && e.key === 'c' && elements.resultSection && !elements.resultSection.classList.contains('hidden')) {
-            // Let default behavior happen if text is selected
-            if (!window.getSelection().toString()) {
-                e.preventDefault();
-                copySong();
-            }
-        }
     });
 
-    console.log('🎵 Image to Song ready!');
+    console.log('🎵 Image to Song ready! (Multi-provider mode)');
 });
