@@ -1,5 +1,6 @@
 /* ============================================
-   Image to Song - Custom Styles
+   Image to Song - Design System
+   Clean, Modern, Minimal
    ============================================ */
 
 /* Base Styles */
@@ -17,95 +18,83 @@ body {
 }
 
 /* ============================================
-   Background Animation - Floating Music Notes
+   Custom Scrollbar
    ============================================ */
-.music-notes {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
 }
 
-.music-notes::before,
-.music-notes::after {
-    content: "♪ ♫ ♬ ♩ ♪ ♫ ♬ ♩ ♪ ♫";
-    position: absolute;
-    font-size: 24px;
-    color: rgba(168, 85, 247, 0.1);
-    white-space: nowrap;
-    animation: float 30s linear infinite;
+::-webkit-scrollbar-track {
+    background: transparent;
 }
 
-.music-notes::before {
-    top: 20%;
-    left: -100%;
-    animation-delay: 0s;
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
 }
 
-.music-notes::after {
-    top: 60%;
-    left: -100%;
-    animation-delay: 15s;
-}
-
-@keyframes float {
-    0% {
-        transform: translateX(0) translateY(0);
-    }
-    100% {
-        transform: translateX(200vw) translateY(-50px);
-    }
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
 }
 
 /* ============================================
-   Drop Zone Styles
+   Selection
    ============================================ */
-.drop-zone {
-    background: rgba(255, 255, 255, 0.02);
-    transition: all 0.3s ease;
+::selection {
+    background: rgba(217, 70, 239, 0.3);
+    color: white;
 }
 
-.drop-zone:hover {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: #A855F7;
+/* ============================================
+   Drop Zone States
+   ============================================ */
+#drop-zone {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.drop-zone.dragover {
-    background: rgba(168, 85, 247, 0.1);
-    border-color: #A855F7;
-    transform: scale(1.02);
+#drop-zone.dragover {
+    border-color: #d946ef;
+    background: rgba(217, 70, 239, 0.1);
+    transform: scale(1.01);
 }
 
-.drop-zone.dragover::after {
-    content: "Drop it!";
+#drop-zone.dragover::after {
+    content: "Drop to upload";
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #A855F7;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #d946ef;
+    background: rgba(217, 70, 239, 0.05);
+    border-radius: inherit;
     pointer-events: none;
 }
 
 /* ============================================
-   Progress Steps Animation
+   Progress Steps
    ============================================ */
 .step-indicator {
     transition: all 0.3s ease;
 }
 
 .step-indicator.active {
-    background: linear-gradient(135deg, #FF6B6B, #A855F7);
-    animation: pulse 1.5s ease-in-out infinite;
+    background: linear-gradient(135deg, #d946ef, #c026d3);
+    border-color: transparent;
+    box-shadow: 0 0 20px rgba(217, 70, 239, 0.4);
 }
 
 .step-indicator.active .step-dot {
     background: white;
+    animation: pulse-dot 1.5s ease-in-out infinite;
 }
 
 .step-indicator.completed {
-    background: #22C55E;
+    background: #22c55e;
+    border-color: transparent;
 }
 
 .step-indicator.completed .step-dot {
@@ -113,18 +102,23 @@ body {
 }
 
 .step-indicator.completed::after {
-    content: "✓";
-    color: white;
-    font-size: 12px;
-    font-weight: bold;
+    content: "";
+    width: 10px;
+    height: 6px;
+    border-left: 2px solid white;
+    border-bottom: 2px solid white;
+    transform: rotate(-45deg);
+    margin-bottom: 2px;
 }
 
-@keyframes pulse {
+@keyframes pulse-dot {
     0%, 100% {
-        box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.4);
+        transform: scale(1);
+        opacity: 1;
     }
     50% {
-        box-shadow: 0 0 0 10px rgba(168, 85, 247, 0);
+        transform: scale(1.5);
+        opacity: 0.7;
     }
 }
 
@@ -132,62 +126,46 @@ body {
    Lyrics Display
    ============================================ */
 #song-lyrics {
-    font-family: 'Space Mono', monospace;
-    line-height: 1.8;
+    font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
 }
 
-#song-lyrics .section-label {
-    color: #A855F7;
-    font-weight: bold;
-    margin-top: 1.5rem;
-    margin-bottom: 0.5rem;
-}
+/* Section labels styling via JS - keep base styles */
 
 /* ============================================
-   Button Animations
+   Buttons
    ============================================ */
 button {
     position: relative;
     overflow: hidden;
+    transform: translateZ(0);
 }
 
-button::after {
+button:disabled {
+    cursor: not-allowed;
+}
+
+/* Ripple effect for buttons */
+button::before {
     content: "";
     position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    transition: width 0.3s, height 0.3s;
+    inset: 0;
+    background: radial-gradient(circle at var(--ripple-x, 50%) var(--ripple-y, 50%), rgba(255,255,255,0.15) 0%, transparent 50%);
+    opacity: 0;
+    transition: opacity 0.3s;
 }
 
-button:active::after {
-    width: 200px;
-    height: 200px;
+button:active::before {
+    opacity: 1;
 }
 
-/* Copy button success state */
+/* Copy success state */
 .copy-success {
-    background: linear-gradient(135deg, #22C55E, #16A34A) !important;
+    background: linear-gradient(135deg, #22c55e, #16a34a) !important;
 }
 
 /* ============================================
-   Loading Spinner
+   Loading Spinner (used in generating section)
    ============================================ */
-.spinner {
-    width: 20px;
-    height: 20px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-top-color: white;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    display: inline-block;
-    margin-right: 8px;
-}
-
 @keyframes spin {
     to {
         transform: rotate(360deg);
@@ -195,22 +173,51 @@ button:active::after {
 }
 
 /* ============================================
-   Celebration Animation
+   Animations
    ============================================ */
-@keyframes celebrate {
-    0%, 100% {
-        transform: scale(1) rotate(0deg);
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
     }
-    25% {
-        transform: scale(1.1) rotate(-5deg);
-    }
-    75% {
-        transform: scale(1.1) rotate(5deg);
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
-.celebrate {
-    animation: celebrate 0.5s ease-in-out;
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Apply animations to sections */
+#upload-section,
+#generating-section,
+#result-section,
+#error-section {
+    animation: fadeIn 0.4s ease-out;
+}
+
+#result-section .bg-surface-900\/50 {
+    animation: slideUp 0.5s ease-out 0.1s both;
 }
 
 /* ============================================
@@ -219,9 +226,9 @@ button:active::after {
 .shimmer {
     background: linear-gradient(
         90deg,
-        rgba(255, 255, 255, 0.05) 0%,
-        rgba(255, 255, 255, 0.1) 50%,
-        rgba(255, 255, 255, 0.05) 100%
+        rgba(255, 255, 255, 0.03) 0%,
+        rgba(255, 255, 255, 0.08) 50%,
+        rgba(255, 255, 255, 0.03) 100%
     );
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
@@ -237,76 +244,23 @@ button:active::after {
 }
 
 /* ============================================
-   Responsive Adjustments
-   ============================================ */
-@media (max-width: 640px) {
-    .music-notes::before,
-    .music-notes::after {
-        font-size: 16px;
-    }
-
-    #song-lyrics {
-        font-size: 0.875rem;
-        line-height: 1.6;
-    }
-}
-
-/* ============================================
    Focus States (Accessibility)
    ============================================ */
-button:focus,
-a:focus,
-input:focus {
-    outline: 2px solid #A855F7;
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+    outline: 2px solid #d946ef;
     outline-offset: 2px;
 }
 
-/* Remove outline on mouse click but keep for keyboard */
 button:focus:not(:focus-visible),
 a:focus:not(:focus-visible),
 input:focus:not(:focus-visible) {
     outline: none;
 }
 
-button:focus-visible,
-a:focus-visible,
-input:focus-visible {
-    outline: 2px solid #A855F7;
-    outline-offset: 2px;
-}
-
 /* ============================================
-   Scrollbar Styling
-   ============================================ */
-::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb {
-    background: rgba(168, 85, 247, 0.5);
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: rgba(168, 85, 247, 0.7);
-}
-
-/* ============================================
-   Selection Styling
-   ============================================ */
-::selection {
-    background: rgba(168, 85, 247, 0.4);
-    color: white;
-}
-
-/* ============================================
-   Error State
+   Error Animation
    ============================================ */
 .error-shake {
     animation: shake 0.5s ease-in-out;
@@ -317,40 +271,39 @@ input:focus-visible {
         transform: translateX(0);
     }
     20%, 60% {
-        transform: translateX(-5px);
+        transform: translateX(-4px);
     }
     40%, 80% {
-        transform: translateX(5px);
+        transform: translateX(4px);
     }
 }
 
 /* ============================================
-   Tooltip Styles
+   Responsive Adjustments
    ============================================ */
-.tooltip {
-    position: relative;
-}
+@media (max-width: 640px) {
+    /* Smaller hero text on mobile */
+    h1 {
+        font-size: 2.25rem !important;
+        line-height: 1.2 !important;
+    }
 
-.tooltip::before {
-    content: attr(data-tooltip);
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 0.5rem 1rem;
-    background: #1e1e2e;
-    color: white;
-    font-size: 0.75rem;
-    border-radius: 0.5rem;
-    white-space: nowrap;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s;
-    margin-bottom: 0.5rem;
-}
+    /* Tighter spacing on mobile */
+    section {
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+    }
 
-.tooltip:hover::before {
-    opacity: 1;
+    /* Stack buttons on mobile */
+    .grid.sm\:grid-cols-3 {
+        grid-template-columns: 1fr;
+    }
+
+    /* Lyrics font size */
+    #song-lyrics {
+        font-size: 0.8125rem;
+        line-height: 1.7;
+    }
 }
 
 /* ============================================
@@ -358,20 +311,95 @@ input:focus-visible {
    ============================================ */
 @media print {
     body {
-        background: white;
-        color: black;
+        background: white !important;
+        color: black !important;
     }
 
-    .music-notes,
     header,
     footer,
     #suno-section,
-    button {
+    button,
+    .fixed {
         display: none !important;
     }
 
     #song-lyrics {
         color: black;
-        font-size: 12pt;
+        font-size: 11pt;
+        line-height: 1.6;
+    }
+
+    #song-title {
+        color: black;
+        font-size: 18pt;
+    }
+}
+
+/* ============================================
+   Utilities
+   ============================================ */
+.text-balance {
+    text-wrap: balance;
+}
+
+/* Hide scrollbar but allow scroll */
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+/* Gradient text helper */
+.gradient-text {
+    background: linear-gradient(135deg, #d946ef, #ec4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Glass morphism helper */
+.glass {
+    background: rgba(15, 23, 42, 0.5);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+/* ============================================
+   Keyboard Shortcuts Tooltip
+   ============================================ */
+kbd {
+    font-family: inherit;
+    font-size: 0.75em;
+}
+
+/* ============================================
+   Tutorial Toggle Animation
+   ============================================ */
+#tutorial-content {
+    animation: slideUp 0.3s ease-out;
+}
+
+/* ============================================
+   Hover Card Effect
+   ============================================ */
+.hover-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* ============================================
+   Safe area insets for mobile
+   ============================================ */
+@supports (padding: max(0px)) {
+    body {
+        padding-left: max(0px, env(safe-area-inset-left));
+        padding-right: max(0px, env(safe-area-inset-right));
     }
 }
