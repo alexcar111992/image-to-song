@@ -1,0 +1,164 @@
+===============================================================
+        IMAGE TO SONG - API SETUP GUIDE
+        Get Your Free API Keys (All 3 Providers)
+===============================================================
+
+This app uses 3 AI providers with automatic fallback.
+If one provider hits rate limits or fails, it automatically
+tries the next one. All 3 are FREE to use!
+
+===============================================================
+1. GROQ (Recommended - Fastest)
+===============================================================
+
+Website: https://console.groq.com/
+
+Steps:
+1. Go to https://console.groq.com/
+2. Click "Sign Up" (use Google, GitHub, or email)
+3. After signing in, go to "API Keys" in the left sidebar
+4. Click "Create API Key"
+5. Give it a name like "image-to-song"
+6. Copy the key (starts with "gsk_")
+
+Free Tier Limits:
+- 30 requests per minute
+- 14,400 requests per day
+- Supports vision models (Llama 3.2 Vision)
+
+Paste your key in app.js at line 16:
+    key: 'gsk_YOUR_KEY_HERE',
+
+
+===============================================================
+2. TOGETHER AI
+===============================================================
+
+Website: https://api.together.xyz/
+
+Steps:
+1. Go to https://api.together.xyz/
+2. Click "Sign Up" (Google or email)
+3. After signing in, click your profile icon
+4. Go to "Settings" → "API Keys"
+5. Click "Create API Key"
+6. Copy the key
+
+Free Tier Limits:
+- $1 free credits (enough for ~100-200 generations)
+- Llama Vision Free model available
+- No credit card required
+
+Paste your key in app.js at line 23:
+    key: 'YOUR_TOGETHER_KEY_HERE',
+
+
+===============================================================
+3. OPENROUTER
+===============================================================
+
+Website: https://openrouter.ai/
+
+Steps:
+1. Go to https://openrouter.ai/
+2. Click "Sign Up" (Google, Discord, or email)
+3. After signing in, click your profile icon
+4. Go to "Keys"
+5. Click "Create Key"
+6. Copy the key (starts with "sk-or-v1-")
+
+Free Tier Limits:
+- Free models available (Llama 3.2 Vision)
+- Some models have no rate limits
+- No credit card required for free models
+
+Paste your key in app.js at line 30:
+    key: 'sk-or-v1-YOUR_KEY_HERE',
+
+
+===============================================================
+HOW TO ADD KEYS TO THE APP
+===============================================================
+
+1. Open website/app.js in a text editor
+
+2. Find the API_PROVIDERS section at the top (around line 13)
+
+3. Replace the placeholder keys:
+
+   BEFORE:
+   key: 'gsk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+
+   AFTER:
+   key: 'gsk_abc123yourActualKeyHere',
+
+4. Save the file
+
+5. Refresh the website
+
+
+===============================================================
+HOW FALLBACK WORKS
+===============================================================
+
+The app tries providers in this order:
+1. Groq (fastest)
+2. Together AI
+3. OpenRouter
+
+If Groq fails (rate limit, error, etc.) → tries Together
+If Together fails → tries OpenRouter
+If all fail → shows error message
+
+This ensures maximum uptime for your users!
+
+
+===============================================================
+RECOMMENDED SETUP FOR 100-500 USERS
+===============================================================
+
+For best reliability with many users:
+
+1. Get API keys from ALL 3 providers
+2. Add all 3 keys to app.js
+3. The fallback system will handle traffic spikes
+
+Estimated capacity with all 3:
+- Groq: ~14,400/day
+- Together: ~200 (with free credits)
+- OpenRouter: Unlimited (free models)
+
+Total: Can handle 500+ users easily!
+
+
+===============================================================
+TROUBLESHOOTING
+===============================================================
+
+"API not configured" error:
+- Make sure your key doesn't contain "xxxx"
+- Check the key is pasted correctly (no extra spaces)
+
+"Rate limit exceeded":
+- The fallback will try the next provider
+- Wait a few minutes if all providers are limited
+
+"Model not found":
+- The model names in app.js are correct
+- This shouldn't happen, but contact support if it does
+
+"CORS error":
+- This shouldn't happen with these providers
+- Make sure you're running from a web server, not file://
+
+
+===============================================================
+QUESTIONS?
+===============================================================
+
+Groq Docs: https://console.groq.com/docs
+Together Docs: https://docs.together.ai/
+OpenRouter Docs: https://openrouter.ai/docs
+
+
+Happy song generating! 🎵
