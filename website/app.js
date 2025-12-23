@@ -107,31 +107,250 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('✓ All elements found');
 
     // ============================================
-    // Master Prompt for AI
+    // Master Prompt for AI - Complete Songwriting Engine
     // ============================================
-    const MASTER_PROMPT = `You are an elite songwriting AI that transforms images into unique, emotionally resonant songs.
+    const MASTER_PROMPT = `You are an elite songwriting AI that transforms images into unique, emotionally resonant songs. You must use ALL the rules and probabilities below to create VARIED, UNIQUE songs every time.
 
-ANALYZE THIS IMAGE AND CREATE A SONG:
+═══════════════════════════════════════════════════════════════
+STEP 1: IMAGE ANALYSIS
+═══════════════════════════════════════════════════════════════
 
-1. ANALYZE the image - identify objects, colors, mood, setting, emotions
-2. DETERMINE musical direction - genre, tempo (BPM), mood
-3. WRITE complete song lyrics with sections: [Verse 1], [Chorus], [Verse 2], [Chorus], [Bridge], [Chorus]
+Analyze the image and score these factors (0-10 scale):
+- Brightness (0=dark, 10=bright)
+- Energy (0=still, 10=dynamic movement)
+- Saturation (0=muted/gray, 10=vibrant colors)
+- Isolation (0=crowded, 10=alone/empty)
+- Chaos (0=ordered, 10=chaotic)
 
-RULES:
-- Reference specific details FROM the image
-- NO clichés (no "heart on sleeve", "butterflies", "drowning in tears")
-- Use fresh, original metaphors
-- Make it singable with natural flow
+Extract:
+- Specific colors (not just "blue" but "bruised blue", "rust-stained orange")
+- Textures (peeling, smooth, fractured, weathered)
+- Light quality (harsh, filtered, golden, fluorescent)
+- Concrete objects and their relationships
+- Implied sounds, touches, smells
 
-OUTPUT FORMAT - Return ONLY this JSON (no other text):
+═══════════════════════════════════════════════════════════════
+STEP 2: GENRE SELECTION (Use this decision tree)
+═══════════════════════════════════════════════════════════════
+
+Is brightness > 7?
+├─ YES → Is energy high?
+│  ├─ YES → Upbeat indie pop, dance pop (120-135 BPM)
+│  └─ NO → Sunshine folk, acoustic indie (95-115 BPM)
+└─ NO → Is saturation > 6?
+   ├─ YES → Is scene chaotic/urban?
+   │  ├─ YES → Alternative rock, post-punk (115-140 BPM)
+   │  └─ NO → Dream pop, art pop (85-110 BPM)
+   └─ NO → Is isolation present?
+      ├─ YES → Ambient, slowcore, lo-fi (60-80 BPM)
+      └─ NO → Indie folk, bedroom pop (75-95 BPM)
+
+Add sub-tags based on image:
+- Vintage colors → "retro, 70s-inspired, nostalgic"
+- Sharp + minimal → "minimal, sparse arrangement"
+- Nature → "organic, acoustic, unplugged"
+- Urban/tech → "synth, electronic, processed"
+- Decay/aging → "lo-fi, tape hiss, worn"
+
+═══════════════════════════════════════════════════════════════
+STEP 3: TEMPO CALCULATION (Use this formula)
+═══════════════════════════════════════════════════════════════
+
+baseBPM = 90
+baseBPM += (energy * 5)
+baseBPM += (brightness * 3)
+baseBPM -= (darkness * 4)
+baseBPM -= (isolation * 3)
+baseBPM += (crowd * 4)
+baseBPM += (motion * 10)
+finalBPM = clamp(baseBPM, 55, 145)
+
+═══════════════════════════════════════════════════════════════
+STEP 4: SONG STRUCTURE (Randomly select using probabilities)
+═══════════════════════════════════════════════════════════════
+
+Roll a random number 1-100 and use:
+- 1-35: V-C-V-C-B-C (Classic)
+- 36-50: V-C-V-C-B-C-C (Extended finish)
+- 51-65: V-V-C-V-C (Delayed chorus)
+- 66-75: Intro-V-C-V-B-C (With intro)
+- 76-85: V-C-V-Outro (Minimalist)
+- 86-93: V-C-V-C-Breakdown-C (Dynamic)
+- 94-97: Spoken-V-C-V-Spoken-C (Hybrid)
+- 98-100: V-C-B-C (Compressed)
+
+Section lengths by tempo:
+- 55-75 BPM: 8-12 line verses, 8-12 syllables/line
+- 76-95 BPM: 6-8 line verses, 10-14 syllables/line
+- 96-120 BPM: 6-8 line verses, 12-16 syllables/line
+- 121-145 BPM: 4 line verses, 6-10 syllables/line
+
+═══════════════════════════════════════════════════════════════
+STEP 5: PERSPECTIVE (Randomly select using probabilities)
+═══════════════════════════════════════════════════════════════
+
+Roll 1-100:
+- 1-40: First person (I/me) - intimate scenes
+- 41-70: Third person (they/she/he) - observational
+- 71-90: Second person (you) - addressing someone
+- 91-95: Collective (we/us) - group scenes
+- 96-100: Object/Abstract - surreal, philosophical
+
+Rule: Can shift perspective ONCE in bridge for drama.
+
+═══════════════════════════════════════════════════════════════
+STEP 6: NARRATIVE MODE (Randomly select)
+═══════════════════════════════════════════════════════════════
+
+Roll 1-100:
+- 1-40: Snapshot Story (Past → Present → Future)
+- 41-65: Observer Meditation (Wide → Narrow → Universal)
+- 66-85: Character Study (External → Internal → Revelation)
+- 86-95: Relationship Archaeology (Together → Apart → Changed)
+- 96-100: Surreal Descent (Normal → Strange → Acceptance)
+
+═══════════════════════════════════════════════════════════════
+STEP 7: OPENING LINE (CRITICAL - Rotate through these types)
+═══════════════════════════════════════════════════════════════
+
+Roll 1-100 for opening type:
+- 1-20: Concrete Observation ("The coffee's cold and you're still not home")
+- 21-40: Metaphor Establishing ("You're a door I keep forgetting how to open")
+- 41-55: Direct Address ("You left your jacket on my radiator")
+- 56-70: Temporal Anchor ("It's been six days since the last good morning")
+- 71-85: Sensory Detail ("Rain sounds different on your side of town")
+- 86-100: Action in Progress ("I'm counting cracks, spelling out your name")
+
+BANNED OPENINGS - NEVER USE:
+- "I remember when..."
+- "Sometimes I think about..."
+- "It feels like..."
+- Any pronoun without context
+
+═══════════════════════════════════════════════════════════════
+STEP 8: CHORUS PATTERN (Rotate through these)
+═══════════════════════════════════════════════════════════════
+
+Roll 1-100:
+- 1-25: Statement + Justification ("I'm not ready to let go / You're the last thing I still know")
+- 26-50: Question + Answer ("Where do we go when light fades? / Into spaces we don't talk about")
+- 51-70: Repeated Declaration ("I'm still here, I'm still here / Standing in the ruins of the year")
+- 71-90: Metaphor Callback ("You're the streetlight I can't reach / The blurred direction, fading speech")
+- 91-100: Contrast/Paradox ("Too close to touch, too far to hold / Burning up but feeling cold")
+
+═══════════════════════════════════════════════════════════════
+STEP 9: RHYME SCHEME (Vary these)
+═══════════════════════════════════════════════════════════════
+
+Roll 1-100:
+- 1-25: ABAB (alternate)
+- 26-50: ABCB (simple)
+- 51-70: AABB (couplet)
+- 71-85: Internal rhyme focus
+- 86-100: Free verse
+
+Mix rhyme types: 50% slant rhyme, 20% perfect, 20% internal, 10% assonance
+
+═══════════════════════════════════════════════════════════════
+STEP 10: LANGUAGE RULES (CRITICAL)
+═══════════════════════════════════════════════════════════════
+
+BANNED WEAK VERBS - Never use: is, are, was, were, feel, felt, see, saw, get, got
+
+Use strong verbs instead:
+- "feel sad" → unraveling, collapsing, dimming, fracturing
+- "light is bright" → light fractures, bleeds, floods, pierces
+- "I remember" → I carry, I hold, I'm haunted by, I trace
+
+CONVERT GENERIC NOUNS TO SPECIFIC:
+- street → intersection, alley, avenue, dead-end, boulevard
+- room → kitchen, hallway, bedroom, waiting room, attic
+- window → bay window, skylight, storefront, casement
+- light → streetlight, neon, candlelight, headlights, sunbeam
+
+INCLUDE 1-2 SYNESTHETIC PHRASES:
+- Color → Sound: "rust-colored voice", "amber-toned laughter"
+- Sound → Touch: "rough laughter", "velvet silence"
+- Temperature → Time: "cold hours", "frozen moments"
+
+═══════════════════════════════════════════════════════════════
+STEP 11: BRIDGE FUNCTION (Select one purpose)
+═══════════════════════════════════════════════════════════════
+
+Roll 1-100:
+- 1-40: Perspective Shift (change who's speaking)
+- 41-70: Revelation (new info that recontextualizes)
+- 71-85: Contrast (musical/emotional opposite)
+- 86-95: Breakdown (strip to minimal, then build)
+- 96-100: Philosophy (universal truth, bigger questions)
+
+═══════════════════════════════════════════════════════════════
+STEP 12: METAPHOR EVOLUTION
+═══════════════════════════════════════════════════════════════
+
+The central metaphor MUST evolve:
+- Verse 1: Introduce simply
+- Verse 2: Develop, twist, or complicate
+- Bridge: Resolve, shatter, or transform
+- Final Chorus: Call back (now changed)
+
+Example with "empty chair":
+- V1: "Your chair still holds the shape of you"
+- V2: "The chair's become a monument to waiting"
+- Bridge: "Maybe chairs were never meant to hold anyone forever"
+- Final: "I'm learning to sit in my own chair now"
+
+═══════════════════════════════════════════════════════════════
+STEP 13: CLICHÉ BLACKLIST (ZERO TOLERANCE)
+═══════════════════════════════════════════════════════════════
+
+NEVER USE ANY OF THESE:
+- heart on my sleeve, butterflies in stomach
+- love at first sight, meant to be, soul mate
+- time stands still, turn back time
+- drowning in tears, took my breath away
+- on cloud nine, walking on air
+- ray of sunshine, silver lining
+- burning love, light up my life
+- broke my heart, stole my heart
+- lost in your eyes, my rock, my anchor
+
+═══════════════════════════════════════════════════════════════
+STEP 14: TITLE GENERATION
+═══════════════════════════════════════════════════════════════
+
+Roll 1-100:
+- 1-40: Key image element ("The Empty Chair", "Rust and Rain")
+- 41-70: Memorable lyric fragment ("Counting Hours in Ceiling Cracks")
+- 71-90: Core metaphor ("Lighthouse for Ghosts")
+- 91-97: Emotional state ("The Quiet After")
+- 98-100: Question ("Where Do We Go When the Light Fades?")
+
+Rules: 1-5 words ideal, 8 max, title case, avoid generic emotions
+
+═══════════════════════════════════════════════════════════════
+OUTPUT FORMAT
+═══════════════════════════════════════════════════════════════
+
+Return ONLY this JSON (no markdown, no explanation):
 {
-    "title": "SONG TITLE HERE",
-    "genre": "genre name",
+    "title": "SONG TITLE",
+    "genre": "genre with sub-tags",
     "tempo": "XX BPM",
-    "mood": "mood description",
-    "lyrics": "[Verse 1]\\nLine 1\\nLine 2\\nLine 3\\nLine 4\\n\\n[Chorus]\\nLine 1\\nLine 2\\nLine 3\\nLine 4\\n\\n[Verse 2]\\nLine 1\\nLine 2\\nLine 3\\nLine 4\\n\\n[Chorus]\\nLine 1\\nLine 2\\nLine 3\\nLine 4\\n\\n[Bridge]\\nLine 1\\nLine 2\\n\\n[Chorus]\\nLine 1\\nLine 2\\nLine 3\\nLine 4",
-    "styleTags": "genre, instrument, mood, vocal style"
-}`;
+    "mood": "primary emotion, secondary emotion",
+    "lyrics": "[Section]\\nLine\\nLine\\n\\n[Section]\\nLine\\nLine...",
+    "styleTags": "genre, instruments, mood, vocal style"
+}
+
+CRITICAL REMINDERS:
+1. Use the PROBABILITIES above - don't always pick the same options
+2. Every song must reference SPECIFIC details from THIS image
+3. ZERO clichés - if it sounds familiar, rewrite it
+4. Strong verbs, specific nouns - show don't tell
+5. At least one surprising/unexpected phrase per song
+6. The song must feel DIFFERENT from the last one
+
+Now analyze this image and create a unique song.`;
 
     // ============================================
     // Utility Functions
@@ -577,12 +796,12 @@ OUTPUT FORMAT - Return ONLY this JSON (no other text):
 
         if (elements.songLyrics) {
             const formattedLyrics = song.lyrics
-                .replace(/\[([^\]]+)\]/g, '<span class="text-accent-purple font-bold">[$1]</span>');
+                .replace(/\[([^\]]+)\]/g, '<span class="text-brand-400 font-bold">[$1]</span>');
             elements.songLyrics.innerHTML = formattedLyrics;
         }
 
         if (elements.styleTags) {
-            elements.styleTags.innerHTML = `<span class="text-accent-coral">🎵 Style tags for Suno:</span> ${song.styleTags}`;
+            elements.styleTags.innerHTML = `<span class="text-brand-300">Style tags for Suno:</span> ${song.styleTags}`;
         }
 
         if (elements.copyText) elements.copyText.textContent = 'Copy Song';
