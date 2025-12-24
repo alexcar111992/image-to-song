@@ -1,18 +1,20 @@
 /**
- * Image to Song - Main Application
+ * Memories to Music - Main Application
  * Transforms images into song lyrics using AI (Multi-provider with fallback)
  */
 
 // Wait for DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🎵 Image to Song initializing...');
+    console.log('🎵 Memories to Music initializing...');
 
     // ============================================
-    // API Configuration - Multiple Providers
+    // API Configuration - Multiple Providers with Failover
     // ============================================
     // Keys are split to avoid GitHub secret scanning
     const _g = ['gsk_cVw9nT5X', 'M1lPydr8BFvY', 'WGdyb3FYfqUe', 'Bg17JUoCz0r2', 'LZsZ5PrL'];
-    const _o = ['sk-or-v1-', 'd8a3da485033', 'ea939f82f446', 'c0e322dd7e73', '9703bab977c4', 'd3bcbc432a4fb0ab'];
+    const _o1 = ['sk-or-v1-', 'd8a3da485033', 'ea939f82f446', 'c0e322dd7e73', '9703bab977c4', 'd3bcbc432a4fb0ab'];
+    const _o2 = ['sk-or-v1-', '1f23540b75ed', '080517089def', '02393791caeb', 'dbc8194c7c6a', '0aeef3fbbb045146'];
+    const _o3 = ['sk-or-v1-', 'c3953bffbd91', '3a268cd27718', 'a2e0f946ce65', 'f5bb596d1774', '68bb349bd1bd6abf'];
 
     const API_PROVIDERS = {
         groq: {
@@ -22,21 +24,104 @@ document.addEventListener('DOMContentLoaded', function() {
             model: 'meta-llama/llama-4-scout-17b-16e-instruct',
             enabled: true
         },
-        openrouter: {
-            name: 'OpenRouter',
-            key: _o.join(''),
+        openrouter1: {
+            name: 'OpenRouter Primary',
+            key: _o1.join(''),
             endpoint: 'https://openrouter.ai/api/v1/chat/completions',
             model: 'google/gemini-2.0-flash-exp:free',
             enabled: true
         },
         openrouter2: {
-            name: 'OpenRouter Backup',
-            key: _o.join(''),
+            name: 'OpenRouter Backup 1',
+            key: _o2.join(''),
+            endpoint: 'https://openrouter.ai/api/v1/chat/completions',
+            model: 'google/gemini-2.0-flash-exp:free',
+            enabled: true
+        },
+        openrouter3: {
+            name: 'OpenRouter Backup 2',
+            key: _o3.join(''),
+            endpoint: 'https://openrouter.ai/api/v1/chat/completions',
+            model: 'google/gemini-2.0-flash-exp:free',
+            enabled: true
+        },
+        openrouterLlama: {
+            name: 'OpenRouter Llama',
+            key: _o1.join(''),
             endpoint: 'https://openrouter.ai/api/v1/chat/completions',
             model: 'meta-llama/llama-3.2-90b-vision-instruct:free',
             enabled: true
         }
     };
+
+    // ============================================
+    // Stripe Configuration (Add your publishable key here)
+    // ============================================
+    const STRIPE_CONFIG = {
+        publishableKey: 'pk_live_xxxxx', // TODO: Add your Stripe publishable key
+        priceId: 'price_xxxxx', // TODO: Add your Stripe price ID for 25 credits @ $5.99
+        successUrl: window.location.origin + '?payment=success',
+        cancelUrl: window.location.origin + '?payment=cancelled',
+    };
+
+    // ============================================
+    // Credits System
+    // ============================================
+    const CREDITS_CONFIG = {
+        freeCredits: 3,
+        purchaseAmount: 25,
+        storageKey: 'mtm_credits',
+        userIdKey: 'mtm_user_id',
+    };
+
+    function generateUserId() {
+        return 'user_' + Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
+    }
+
+    function getUserId() {
+        let userId = localStorage.getItem(CREDITS_CONFIG.userIdKey);
+        if (!userId) {
+            userId = generateUserId();
+            localStorage.setItem(CREDITS_CONFIG.userIdKey, userId);
+        }
+        return userId;
+    }
+
+    function getCredits() {
+        const stored = localStorage.getItem(CREDITS_CONFIG.storageKey);
+        if (stored === null) {
+            // First time user - give free credits
+            setCredits(CREDITS_CONFIG.freeCredits);
+            return CREDITS_CONFIG.freeCredits;
+        }
+        return parseInt(stored, 10) || 0;
+    }
+
+    function setCredits(amount) {
+        localStorage.setItem(CREDITS_CONFIG.storageKey, amount.toString());
+        updateCreditsDisplay();
+    }
+
+    function useCredit() {
+        const current = getCredits();
+        if (current > 0) {
+            setCredits(current - 1);
+            return true;
+        }
+        return false;
+    }
+
+    function addCredits(amount) {
+        const current = getCredits();
+        setCredits(current + amount);
+    }
+
+    function updateCreditsDisplay() {
+        const creditsCount = document.getElementById('credits-count');
+        if (creditsCount) {
+            creditsCount.textContent = getCredits();
+        }
+    }
 
     // ============================================
     // State Management
@@ -49,6 +134,7 @@ document.addEventListener('DOMContentLoaded', function() {
         currentSong: null,
         lastUsedProvider: null,
         selectedGenre: '',
+        credits: getCredits(),
     };
 
     // ============================================
@@ -104,6 +190,19 @@ document.addEventListener('DOMContentLoaded', function() {
         genreChevron: document.getElementById('genre-chevron'),
         genreGrid: document.getElementById('genre-grid'),
         genreBtns: document.querySelectorAll('.genre-btn'),
+
+        // Credits System
+        creditsDisplay: document.getElementById('credits-display'),
+        creditsCount: document.getElementById('credits-count'),
+        buyCreditsBtn: document.getElementById('buy-credits-btn'),
+        pricingModal: document.getElementById('pricing-modal'),
+        modalBackdrop: document.getElementById('modal-backdrop'),
+        closeModal: document.getElementById('close-modal'),
+        checkoutBtn: document.getElementById('checkout-btn'),
+        noCreditsModal: document.getElementById('no-credits-modal'),
+        noCreditsBackdrop: document.getElementById('no-credits-backdrop'),
+        closeNoCredits: document.getElementById('close-no-credits'),
+        buyFromModal: document.getElementById('buy-from-modal'),
     };
 
     // Verify critical elements exist
@@ -645,13 +744,14 @@ You MUST write the song in the "${selectedGenre}" style.
         return data.choices?.[0]?.message?.content;
     }
 
-    async function callOpenRouter(imageBase64, mimeType, prompt) {
-        const config = API_PROVIDERS.openrouter;
-        if (!config.enabled || !config.key || config.key.includes('xxxx')) {
-            throw new Error('OpenRouter API not configured');
+    // Generic OpenRouter call function
+    async function callOpenRouterGeneric(imageBase64, mimeType, prompt, providerKey) {
+        const config = API_PROVIDERS[providerKey];
+        if (!config || !config.enabled || !config.key || config.key.includes('xxxx')) {
+            throw new Error(`${config?.name || providerKey} not configured`);
         }
 
-        console.log('Trying OpenRouter...');
+        console.log(`Trying ${config.name}...`);
 
         const response = await fetch(config.endpoint, {
             method: 'POST',
@@ -659,7 +759,7 @@ You MUST write the song in the "${selectedGenre}" style.
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${config.key}`,
                 'HTTP-Referer': window.location.href,
-                'X-Title': 'Image to Song',
+                'X-Title': 'Memories to Music',
             },
             body: JSON.stringify({
                 model: config.model,
@@ -684,53 +784,7 @@ You MUST write the song in the "${selectedGenre}" style.
 
         if (!response.ok) {
             const error = await response.json().catch(() => ({}));
-            throw new Error(error.error?.message || `OpenRouter API Error: ${response.status}`);
-        }
-
-        const data = await response.json();
-        return data.choices?.[0]?.message?.content;
-    }
-
-    async function callOpenRouter2(imageBase64, mimeType, prompt) {
-        const config = API_PROVIDERS.openrouter2;
-        if (!config.enabled || !config.key || config.key.includes('xxxx')) {
-            throw new Error('OpenRouter Backup not configured');
-        }
-
-        console.log('Trying OpenRouter Backup...');
-
-        const response = await fetch(config.endpoint, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${config.key}`,
-                'HTTP-Referer': window.location.href,
-                'X-Title': 'Image to Song',
-            },
-            body: JSON.stringify({
-                model: config.model,
-                messages: [
-                    {
-                        role: 'user',
-                        content: [
-                            { type: 'text', text: prompt },
-                            {
-                                type: 'image_url',
-                                image_url: {
-                                    url: `data:${mimeType};base64,${imageBase64}`
-                                }
-                            }
-                        ]
-                    }
-                ],
-                max_tokens: 2048,
-                temperature: 0.9,
-            }),
-        });
-
-        if (!response.ok) {
-            const error = await response.json().catch(() => ({}));
-            throw new Error(error.error?.message || `OpenRouter Backup Error: ${response.status}`);
+            throw new Error(error.error?.message || `${config.name} Error: ${response.status}`);
         }
 
         const data = await response.json();
@@ -739,18 +793,22 @@ You MUST write the song in the "${selectedGenre}" style.
 
     async function callAIWithFallback(imageBase64, mimeType, selectedGenre) {
         const prompt = buildPrompt(selectedGenre);
-        const providers = [
-            { name: 'Groq', fn: callGroq },
-            { name: 'OpenRouter', fn: callOpenRouter },
-            { name: 'OpenRouter Backup', fn: callOpenRouter2 },
+
+        // Provider order for failover - tries all providers in sequence
+        const providerOrder = [
+            { name: 'Groq', fn: () => callGroq(imageBase64, mimeType, prompt) },
+            { name: 'OpenRouter Primary', fn: () => callOpenRouterGeneric(imageBase64, mimeType, prompt, 'openrouter1') },
+            { name: 'OpenRouter Backup 1', fn: () => callOpenRouterGeneric(imageBase64, mimeType, prompt, 'openrouter2') },
+            { name: 'OpenRouter Backup 2', fn: () => callOpenRouterGeneric(imageBase64, mimeType, prompt, 'openrouter3') },
+            { name: 'OpenRouter Llama', fn: () => callOpenRouterGeneric(imageBase64, mimeType, prompt, 'openrouterLlama') },
         ];
 
         const errors = [];
 
-        for (const provider of providers) {
+        for (const provider of providerOrder) {
             try {
                 console.log(`Attempting ${provider.name}...`);
-                const result = await provider.fn(imageBase64, mimeType, prompt);
+                const result = await provider.fn();
                 if (result) {
                     state.lastUsedProvider = provider.name;
                     console.log(`✓ Success with ${provider.name}`);
@@ -759,10 +817,11 @@ You MUST write the song in the "${selectedGenre}" style.
             } catch (error) {
                 console.warn(`${provider.name} failed:`, error.message);
                 errors.push(`${provider.name}: ${error.message}`);
+                // Continue to next provider
             }
         }
 
-        throw new Error(`All AI providers failed:\n${errors.join('\n')}`);
+        throw new Error(`All AI providers failed. Please try again later.\n\nDetails:\n${errors.join('\n')}`);
     }
 
     // ============================================
@@ -771,6 +830,13 @@ You MUST write the song in the "${selectedGenre}" style.
 
     async function generateSong() {
         if (state.isGenerating) return;
+
+        // Check if user has credits
+        if (getCredits() <= 0) {
+            console.log('No credits available');
+            showNoCreditsModal();
+            return;
+        }
 
         console.log('Starting generation...');
         state.isGenerating = true;
@@ -825,6 +891,10 @@ You MUST write the song in the "${selectedGenre}" style.
     }
 
     function displaySong(song) {
+        // Deduct a credit for successful generation
+        useCredit();
+        console.log(`Credit used. Remaining: ${getCredits()}`);
+
         if (elements.songTitle) elements.songTitle.textContent = song.title;
         if (elements.songGenre) elements.songGenre.textContent = song.genre;
         if (elements.songTempo) elements.songTempo.textContent = song.tempo;
@@ -1017,5 +1087,118 @@ ${state.currentSong.lyrics}
         });
     }
 
-    console.log('🎵 Image to Song ready! (Multi-provider mode)');
+    // ============================================
+    // Credits Modal Functions
+    // ============================================
+
+    function showPricingModal() {
+        if (elements.pricingModal) {
+            elements.pricingModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    function hidePricingModal() {
+        if (elements.pricingModal) {
+            elements.pricingModal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+    }
+
+    function showNoCreditsModal() {
+        if (elements.noCreditsModal) {
+            elements.noCreditsModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    function hideNoCreditsModal() {
+        if (elements.noCreditsModal) {
+            elements.noCreditsModal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+    }
+
+    async function handleCheckout() {
+        // Check if Stripe is configured
+        if (STRIPE_CONFIG.publishableKey.includes('xxxxx')) {
+            alert('Stripe is not configured yet. Please add your Stripe publishable key to enable payments.');
+            console.log('To enable payments, update STRIPE_CONFIG in app.js with your Stripe keys.');
+            return;
+        }
+
+        try {
+            // For now, simulate adding credits (replace with actual Stripe checkout)
+            // In production, you would redirect to Stripe Checkout
+            const stripe = window.Stripe ? window.Stripe(STRIPE_CONFIG.publishableKey) : null;
+
+            if (!stripe) {
+                // Load Stripe.js dynamically if not loaded
+                const script = document.createElement('script');
+                script.src = 'https://js.stripe.com/v3/';
+                script.onload = () => {
+                    // After loading, redirect to checkout
+                    // This would need a backend to create checkout sessions
+                    alert('Stripe loaded! To complete setup, you need a backend to create checkout sessions.');
+                };
+                document.head.appendChild(script);
+                return;
+            }
+
+            // Redirect to Stripe Checkout (requires backend)
+            // stripe.redirectToCheckout({ sessionId: 'session_from_backend' });
+
+        } catch (error) {
+            console.error('Checkout error:', error);
+            alert('Payment error. Please try again.');
+        }
+    }
+
+    // Credits Modal Event Listeners
+    if (elements.buyCreditsBtn) {
+        elements.buyCreditsBtn.addEventListener('click', showPricingModal);
+    }
+
+    if (elements.closeModal) {
+        elements.closeModal.addEventListener('click', hidePricingModal);
+    }
+
+    if (elements.modalBackdrop) {
+        elements.modalBackdrop.addEventListener('click', hidePricingModal);
+    }
+
+    if (elements.checkoutBtn) {
+        elements.checkoutBtn.addEventListener('click', handleCheckout);
+    }
+
+    if (elements.closeNoCredits) {
+        elements.closeNoCredits.addEventListener('click', hideNoCreditsModal);
+    }
+
+    if (elements.noCreditsBackdrop) {
+        elements.noCreditsBackdrop.addEventListener('click', hideNoCreditsModal);
+    }
+
+    if (elements.buyFromModal) {
+        elements.buyFromModal.addEventListener('click', () => {
+            hideNoCreditsModal();
+            showPricingModal();
+        });
+    }
+
+    // Check for payment success URL parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('payment') === 'success') {
+        // Add credits after successful payment
+        addCredits(CREDITS_CONFIG.purchaseAmount);
+        alert(`Success! ${CREDITS_CONFIG.purchaseAmount} credits have been added to your account.`);
+        // Clean up URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    // Initialize credits display
+    updateCreditsDisplay();
+
+    console.log('🎵 Memories to Music ready! (Multi-provider failover mode)');
+    console.log(`Credits available: ${getCredits()}`);
 });

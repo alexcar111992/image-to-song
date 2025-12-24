@@ -1,5 +1,5 @@
 /* ============================================
-   Image to Song - Design System
+   Memories to Music - Design System
    Clean, Modern, Minimal
    ============================================ */
 
@@ -42,7 +42,7 @@ body {
    Selection
    ============================================ */
 ::selection {
-    background: rgba(217, 70, 239, 0.3);
+    background: rgba(249, 115, 22, 0.3);
     color: white;
 }
 
@@ -54,8 +54,8 @@ body {
 }
 
 #drop-zone.dragover {
-    border-color: #d946ef;
-    background: rgba(217, 70, 239, 0.1);
+    border-color: #f97316;
+    background: rgba(249, 115, 22, 0.1);
     transform: scale(1.01);
 }
 
@@ -68,8 +68,8 @@ body {
     justify-content: center;
     font-size: 1.125rem;
     font-weight: 600;
-    color: #d946ef;
-    background: rgba(217, 70, 239, 0.05);
+    color: #f97316;
+    background: rgba(249, 115, 22, 0.05);
     border-radius: inherit;
     pointer-events: none;
 }
@@ -82,9 +82,9 @@ body {
 }
 
 .step-indicator.active {
-    background: linear-gradient(135deg, #d946ef, #c026d3);
+    background: linear-gradient(135deg, #f97316, #ea580c);
     border-color: transparent;
-    box-shadow: 0 0 20px rgba(217, 70, 239, 0.4);
+    box-shadow: 0 0 20px rgba(249, 115, 22, 0.4);
 }
 
 .step-indicator.active .step-dot {
@@ -249,7 +249,7 @@ button:active::before {
 button:focus-visible,
 a:focus-visible,
 input:focus-visible {
-    outline: 2px solid #d946ef;
+    outline: 2px solid #f97316;
     outline-offset: 2px;
 }
 
@@ -354,7 +354,7 @@ input:focus:not(:focus-visible) {
 
 /* Gradient text helper */
 .gradient-text {
-    background: linear-gradient(135deg, #d946ef, #ec4899);
+    background: linear-gradient(135deg, #f97316, #fbbf24);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -408,15 +408,15 @@ kbd {
 }
 
 .genre-btn:hover {
-    background: rgba(217, 70, 239, 0.1);
-    border-color: rgba(217, 70, 239, 0.3);
+    background: rgba(249, 115, 22, 0.1);
+    border-color: rgba(249, 115, 22, 0.3);
     transform: translateY(-1px);
 }
 
 .genre-btn.active {
-    background: linear-gradient(135deg, rgba(217, 70, 239, 0.2), rgba(192, 38, 211, 0.2));
-    border-color: rgba(217, 70, 239, 0.5);
-    box-shadow: 0 0 12px rgba(217, 70, 239, 0.2);
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.2), rgba(234, 88, 12, 0.2));
+    border-color: rgba(249, 115, 22, 0.5);
+    box-shadow: 0 0 12px rgba(249, 115, 22, 0.2);
 }
 
 .genre-btn .genre-icon {
@@ -433,7 +433,7 @@ kbd {
 }
 
 .genre-btn.active .genre-name {
-    color: rgba(217, 70, 239, 1);
+    color: rgba(249, 115, 22, 1);
 }
 
 .genre-btn:hover .genre-name {
