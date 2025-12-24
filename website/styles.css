@@ -383,6 +383,78 @@ kbd {
 }
 
 /* ============================================
+   Genre Selector
+   ============================================ */
+#genre-grid {
+    animation: slideUp 0.2s ease-out;
+}
+
+#genre-chevron.rotate {
+    transform: rotate(180deg);
+}
+
+.genre-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    padding: 0.625rem 0.5rem;
+    background: rgba(30, 41, 59, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 0.75rem;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.genre-btn:hover {
+    background: rgba(217, 70, 239, 0.1);
+    border-color: rgba(217, 70, 239, 0.3);
+    transform: translateY(-1px);
+}
+
+.genre-btn.active {
+    background: linear-gradient(135deg, rgba(217, 70, 239, 0.2), rgba(192, 38, 211, 0.2));
+    border-color: rgba(217, 70, 239, 0.5);
+    box-shadow: 0 0 12px rgba(217, 70, 239, 0.2);
+}
+
+.genre-btn .genre-icon {
+    font-size: 1.25rem;
+    line-height: 1;
+}
+
+.genre-btn .genre-name {
+    font-size: 0.625rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.6);
+    text-align: center;
+    line-height: 1.2;
+}
+
+.genre-btn.active .genre-name {
+    color: rgba(217, 70, 239, 1);
+}
+
+.genre-btn:hover .genre-name {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+@media (max-width: 640px) {
+    .genre-btn {
+        padding: 0.5rem 0.25rem;
+    }
+
+    .genre-btn .genre-icon {
+        font-size: 1rem;
+    }
+
+    .genre-btn .genre-name {
+        font-size: 0.5625rem;
+    }
+}
+
+/* ============================================
    Hover Card Effect
    ============================================ */
 .hover-card {
