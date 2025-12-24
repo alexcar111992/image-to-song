@@ -48,6 +48,7 @@ document.addEventListener('DOMContentLoaded', function() {
         isGenerating: false,
         currentSong: null,
         lastUsedProvider: null,
+        selectedGenre: '',
     };
 
     // ============================================
@@ -96,6 +97,13 @@ document.addEventListener('DOMContentLoaded', function() {
         // Error
         errorMessage: document.getElementById('error-message'),
         retryBtn: document.getElementById('retry-btn'),
+
+        // Genre Selector
+        genreToggle: document.getElementById('genre-toggle'),
+        genreLabel: document.getElementById('genre-label'),
+        genreChevron: document.getElementById('genre-chevron'),
+        genreGrid: document.getElementById('genre-grid'),
+        genreBtns: document.querySelectorAll('.genre-btn'),
     };
 
     // Verify critical elements exist
@@ -352,6 +360,32 @@ CRITICAL REMINDERS:
 
 Now analyze this image and create a unique song.`;
 
+    // Function to build the prompt with optional genre override
+    function buildPrompt(selectedGenre) {
+        if (!selectedGenre) {
+            return MASTER_PROMPT;
+        }
+
+        const genreOverride = `
+
+═══════════════════════════════════════════════════════════════
+GENRE OVERRIDE - USER SELECTED: ${selectedGenre.toUpperCase()}
+═══════════════════════════════════════════════════════════════
+
+IMPORTANT: The user has specifically requested "${selectedGenre}" genre.
+You MUST write the song in the "${selectedGenre}" style.
+- Match the tempo, instrumentation, and mood typical of ${selectedGenre}
+- Use vocabulary and imagery that fits ${selectedGenre} aesthetic
+- Style tags MUST include "${selectedGenre}" as the primary genre
+- Still analyze the image for specific details and metaphors
+
+`;
+        return MASTER_PROMPT.replace(
+            'Now analyze this image and create a unique song.',
+            genreOverride + 'Now analyze this image and create a unique song in the specified genre.'
+        );
+    }
+
     // ============================================
     // Utility Functions
     // ============================================
@@ -523,7 +557,7 @@ Now analyze this image and create a unique song.`;
     // API Call Functions
     // ============================================
 
-    async function callGroq(imageBase64, mimeType) {
+    async function callGroq(imageBase64, mimeType, prompt) {
         const config = API_PROVIDERS.groq;
         if (!config.enabled || !config.key || config.key.includes('xxxx')) {
             throw new Error('Groq API not configured');
@@ -543,7 +577,7 @@ Now analyze this image and create a unique song.`;
                     {
                         role: 'user',
                         content: [
-                            { type: 'text', text: MASTER_PROMPT },
+                            { type: 'text', text: prompt },
                             {
                                 type: 'image_url',
                                 image_url: {
@@ -611,7 +645,7 @@ Now analyze this image and create a unique song.`;
         return data.choices?.[0]?.message?.content;
     }
 
-    async function callOpenRouter(imageBase64, mimeType) {
+    async function callOpenRouter(imageBase64, mimeType, prompt) {
         const config = API_PROVIDERS.openrouter;
         if (!config.enabled || !config.key || config.key.includes('xxxx')) {
             throw new Error('OpenRouter API not configured');
@@ -633,7 +667,7 @@ Now analyze this image and create a unique song.`;
                     {
                         role: 'user',
                         content: [
-                            { type: 'text', text: MASTER_PROMPT },
+                            { type: 'text', text: prompt },
                             {
                                 type: 'image_url',
                                 image_url: {
@@ -657,7 +691,7 @@ Now analyze this image and create a unique song.`;
         return data.choices?.[0]?.message?.content;
     }
 
-    async function callOpenRouter2(imageBase64, mimeType) {
+    async function callOpenRouter2(imageBase64, mimeType, prompt) {
         const config = API_PROVIDERS.openrouter2;
         if (!config.enabled || !config.key || config.key.includes('xxxx')) {
             throw new Error('OpenRouter Backup not configured');
@@ -679,7 +713,7 @@ Now analyze this image and create a unique song.`;
                     {
                         role: 'user',
                         content: [
-                            { type: 'text', text: MASTER_PROMPT },
+                            { type: 'text', text: prompt },
                             {
                                 type: 'image_url',
                                 image_url: {
@@ -703,7 +737,8 @@ Now analyze this image and create a unique song.`;
         return data.choices?.[0]?.message?.content;
     }
 
-    async function callAIWithFallback(imageBase64, mimeType) {
+    async function callAIWithFallback(imageBase64, mimeType, selectedGenre) {
+        const prompt = buildPrompt(selectedGenre);
         const providers = [
             { name: 'Groq', fn: callGroq },
             { name: 'OpenRouter', fn: callOpenRouter },
@@ -715,7 +750,7 @@ Now analyze this image and create a unique song.`;
         for (const provider of providers) {
             try {
                 console.log(`Attempting ${provider.name}...`);
-                const result = await provider.fn(imageBase64, mimeType);
+                const result = await provider.fn(imageBase64, mimeType, prompt);
                 if (result) {
                     state.lastUsedProvider = provider.name;
                     console.log(`✓ Success with ${provider.name}`);
@@ -760,7 +795,8 @@ Now analyze this image and create a unique song.`;
 
             const generatedText = await callAIWithFallback(
                 state.currentImageBase64,
-                state.currentImageMimeType
+                state.currentImageMimeType,
+                state.selectedGenre
             );
 
             if (!generatedText) {
@@ -946,6 +982,40 @@ ${state.currentSong.lyrics}
             }
         }
     });
+
+    // Genre Selector Toggle
+    if (elements.genreToggle && elements.genreGrid) {
+        elements.genreToggle.addEventListener('click', function() {
+            const isHidden = elements.genreGrid.classList.contains('hidden');
+            elements.genreGrid.classList.toggle('hidden');
+            if (elements.genreChevron) {
+                elements.genreChevron.classList.toggle('rotate', isHidden);
+            }
+        });
+    }
+
+    // Genre Button Selection
+    if (elements.genreBtns) {
+        elements.genreBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove active class from all buttons
+                elements.genreBtns.forEach(b => b.classList.remove('active'));
+                // Add active class to clicked button
+                this.classList.add('active');
+                // Update state
+                state.selectedGenre = this.dataset.genre || '';
+                // Update label
+                if (elements.genreLabel) {
+                    if (state.selectedGenre) {
+                        elements.genreLabel.textContent = `Genre: ${this.querySelector('.genre-name').textContent}`;
+                    } else {
+                        elements.genreLabel.textContent = 'Genre: Auto-detect from image';
+                    }
+                }
+                console.log('Genre selected:', state.selectedGenre || 'Auto');
+            });
+        });
+    }
 
     console.log('🎵 Image to Song ready! (Multi-provider mode)');
 });
